@@ -6,6 +6,7 @@ import MyProducts from './views/MyProducts';
 import PInfo from './views/ProductInformations';
 import PCreate from './views/ProductCreation';
 import ProducerRequest from './views/ProducerRequest';
+import Commands from './views/Commands';
 import Profile from './views/Profile';
 
 Vue.use(VueRouter);
@@ -19,6 +20,7 @@ const router = new VueRouter({
     {path:'/product/new', name:'product-creation', component:PCreate},
     {path:'/compte', name:'profile', component:Profile},
     {path:'/producer/request', name:'producer-request', component:ProducerRequest},
+    {path:'/commands', name:'commands', component:Commands},
     {path:'/logout', name:'deconnexion'},
     // {path:'/connexion', name:'connect', component:Connect}
   ]
