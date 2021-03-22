@@ -15,8 +15,10 @@ import Vue from 'vue';
 import Vuetify from 'vuetify';
 import Routes from './js/routes.js';
 import App from './js/views/App';
+import Vuelidate from 'vuelidate'
 import 'vuetify/dist/vuetify.min.css';
 
+Vue.use(Vuelidate)
 Vue.use(Vuetify);
 
 const app = new Vue({

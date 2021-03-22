@@ -1,6 +1,6 @@
 <template>
 <div>
-<v-app-bar
+  <v-app-bar
       color="deep-purple"
       dark
     >
@@ -72,7 +72,7 @@
               </v-list-item-title>
           </v-list-item>
           
-          <v-list-item>
+          <v-list-item v-if="user !== null">
               <v-list-item-icon>
                 <v-icon>mdi-account</v-icon>
               </v-list-item-icon>
@@ -83,47 +83,51 @@
               </v-list-item-title>
           </v-list-item>
 
-          <v-list-item>
+          <v-list-item v-if="user !== null && producer === true">
               <v-list-item-icon>
                 <v-icon>mdi-account</v-icon>
               </v-list-item-icon>
               <v-list-item-title>
-                <router-link to="/product/">
+                <router-link to="/product/my-products">
                   Ma boutique
                 </router-link> 
               </v-list-item-title>
           </v-list-item>
 
-          <v-list-item>
+          <v-list-item v-if="user !== null">
               <v-list-item-icon>
                 <v-icon>mdi-account</v-icon>
               </v-list-item-icon>
               <v-list-item-title>
-                <router-link to="/product/new">
+                <router-link to="/commands">
                   Mes commandes
                 </router-link> 
               </v-list-item-title>
           </v-list-item>
 
-          <v-list-item>
+          <v-list-item v-if="user !== null">
               <v-list-item-icon>
                 <v-icon>mdi-account</v-icon>
               </v-list-item-icon>
               <v-list-item-title>
-                <router-link to="/logout">
-                  Déconnexion
-                </router-link> 
+                <a href="/logout">Déconnexion</a>
               </v-list-item-title>
           </v-list-item>
 
-          <v-list-item>
+          <v-list-item v-if="user === null">
               <v-list-item-icon>
                 <v-icon>mdi-account</v-icon>
               </v-list-item-icon>
               <v-list-item-title>
-                <router-link to="/login">
-                  Connexion
-                </router-link> 
+                <a href="/login">Connexion</a>
+              </v-list-item-title>
+          </v-list-item>
+          <v-list-item v-if="user === null">
+              <v-list-item-icon>
+                <v-icon>mdi-account</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>
+                <a href="/register">Créer un compte</a>
               </v-list-item-title>
           </v-list-item>
 
@@ -132,7 +136,6 @@
     </v-navigation-drawer>
   </div>
 </template>
-
 
 <script>
 const axios = require('axios');
@@ -149,7 +152,7 @@ const axios = require('axios');
         { title: 'Click Me 2' },
       ],
     }),
-    props: ["nbCommands"],
+    props: ["nbCommands", "user", "producer"],
     methods: {
      async remove(itemId) {
         const response = await axios.get("/cart/remove/item/" + itemId);

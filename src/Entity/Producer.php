@@ -2,10 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\ProducerRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ProducerRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ProducerRepository::class)
@@ -13,7 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Producer
 {
     /**
-     * 
+     * @Groups({"producer", "products"})
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -27,11 +28,13 @@ class Producer
     private $user;
 
     /**
+     * @Groups("producer")
      * @ORM\Column(type="text", nullable=true)
      */
     private $introduction;
 
     /**
+     * 
      * @ORM\OneToMany(targetEntity=Command::class, mappedBy="producer")
      */
     private $commands;

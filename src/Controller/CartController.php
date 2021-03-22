@@ -62,7 +62,18 @@ class CartController extends AbstractController
      * @Route("/all/commands", name="cart_all_commands", methods={"GET"})
      */
     public function customerCommands(SerializerInterface $serializer): Response
-    {
+    {   
+        $producer = false;
+        if($this->getUser()) {
+            $user = $this->getUser();
+            if($user->getProducerProfile()) {
+                $producer = true;
+            }
+
+        } else {
+            $user = null;
+        }
+
         $cart_data = $this->getDoctrine()->getRepository(Cart::class)->findBy(['user' => $this->getUser()]);
 
         $cart = $serializer->serialize(
@@ -72,7 +83,11 @@ class CartController extends AbstractController
         );
 
         return $this->json([
-            'cart' => json_decode($cart)
+            'cart' => json_decode($cart),
+            'user' => $user->getId(),
+            'user_lastName' => $user->getlastName(),
+            'user_firstName' => $user->getfirstName(),
+            'producer' => $producer,
         ]);
     }
 

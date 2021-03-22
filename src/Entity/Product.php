@@ -62,6 +62,7 @@ class Product
     private $image;
 
     /**
+     * @Groups("products")
      * @ORM\ManyToOne(targetEntity=Producer::class, inversedBy="products")
      * @ORM\JoinColumn(nullable=false)
      */

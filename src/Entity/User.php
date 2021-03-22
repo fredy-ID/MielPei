@@ -8,9 +8,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @UniqueEntity(fields={"email"}, message="There is already an account with this email")
  */
 class User implements UserInterface
 {
@@ -21,6 +24,32 @@ class User implements UserInterface
      * @ORM\Column(type="integer")
      */
     private $id;
+
+        /**
+     * @ORM\Column(type="string", length=255)
+     * @Assert\Length(
+     *      min = 2,
+     *      max = 35,
+     *      minMessage = "{{ limit }} caractères minimum requis",
+     *      maxMessage = "{{ limit }} caractères maximum",
+     *      allowEmptyString = false
+     * )
+     * @Groups("public")
+     */
+    private $firstName;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     * @Assert\Length(
+     *      min = 1,
+     *      max = 35,
+     *      minMessage = "{{ limit }} caractère minimum requis",
+     *      maxMessage = "{{ limit }} caractères maximum",
+     *      allowEmptyString = false
+     * )
+     * @Groups("public")
+     */
+    private $lastName;
 
     /**
      * @Groups("user")
@@ -58,15 +87,50 @@ class User implements UserInterface
      */
     private $cart;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isVerified = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity=ProducerRequest::class, mappedBy="user")
+     */
+    private $producerRequests;
+
     public function __construct()
     {
         $this->products = new ArrayCollection();
         $this->commands = new ArrayCollection();
+        $this->producerRequests = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): self
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): self
+    {
+        $this->lastName = $lastName;
+
+        return $this;
     }
 
     public function getEmail(): ?string
@@ -202,6 +266,48 @@ class User implements UserInterface
         }
 
         $this->cart = $cart;
+
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): self
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|ProducerRequest[]
+     */
+    public function getProducerRequests(): Collection
+    {
+        return $this->producerRequests;
+    }
+
+    public function addProducerRequest(ProducerRequest $producerRequest): self
+    {
+        if (!$this->producerRequests->contains($producerRequest)) {
+            $this->producerRequests[] = $producerRequest;
+            $producerRequest->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProducerRequest(ProducerRequest $producerRequest): self
+    {
+        if ($this->producerRequests->removeElement($producerRequest)) {
+            // set the owning side to null (unless already changed)
+            if ($producerRequest->getUser() === $this) {
+                $producerRequest->setUser(null);
+            }
+        }
 
         return $this;
     }

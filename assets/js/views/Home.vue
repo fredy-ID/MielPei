@@ -3,6 +3,8 @@
         <AppBar 
           :nbCommands="nbCommands"
           @update-cart="updateCart"
+          :user="user"
+          :producer="producer"
         />
 
         <!-- <div data-controller="hello"></div>
@@ -14,10 +16,10 @@
             v-bind:key="product.id"
             :product="product"
             :action="'achat'"
+            :user="user"
             @update-cart="updateCart"
            />
         </div>
-        
     </div>
 </template>
 
@@ -35,6 +37,8 @@ import ProductCard from '../components/cards/product';
       return{
         products: [],
         nbCommands: 0,
+        user: null,
+        producer: false,
       };
       
     },
@@ -55,12 +59,14 @@ import ProductCard from '../components/cards/product';
 
       async updateCart() {
           const response = await axios.get("/cart/all/commands");
-          console.log(response)
-          var cart = response.data.cart[0].products;
-          console.log(cart)
+          if(response.data.cart.length > 0) {
+            var cart = response.data.cart[0].products;
             this.nbCommands = cart
-          console.log(this.nbCommands)
+          }
+            this.user = response.data.user;
+            this.producer = response.data.producer;
       },
+      
 
     },
 

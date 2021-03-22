@@ -25,15 +25,37 @@
       
     </v-card-text>
 
-    <v-card-actions v-if="action == 'achat'">
-      <v-btn
-        color="deep-purple lighten-2"
-        text
-        @click="reserve(product['id'])"
-      >
-        Ajouter au panier
-      </v-btn>
-      <v-form v-model="valid">
+    <v-card-actions>
+      <div v-if="user === null">
+        <a href="/login"
+            color="deep-purple lighten-2"
+            class="v-btn v-btn--text theme--light v-size--default deep-purple--text text--lighten-2"
+          >
+            Ajouter au panier
+        </a>
+      </div>
+      
+      <div v-else>
+        <v-btn
+          color="deep-purple lighten-2"
+          text
+          @click="reserve(product['id'])"
+          v-if="action == 'achat'"
+        >
+          Ajouter au panier
+        </v-btn>
+      </div>
+
+      <router-link :to="{ name: 'product-info', params: { id: product['id'] }}">
+        <v-btn
+          color="deep-purple lighten-2"
+          text
+        >
+          Consulter
+        </v-btn>
+      </router-link>
+
+      <v-form v-model="valid" v-if="action == 'achat'">
         <v-container>
             <v-text-field
                 v-model="quantity"
@@ -42,7 +64,8 @@
                 required
             ></v-text-field>
         </v-container>
-    </v-form>
+      </v-form>
+      
     </v-card-actions>
   </v-card>
 </template>
@@ -62,7 +85,7 @@ const axios = require('axios');
       ],
     }),
 
-    props: ["product", "action"],
+    props: ["product", "action", "user"],
 
     methods: {
       reserve () {
