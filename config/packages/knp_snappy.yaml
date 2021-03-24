@@ -1,0 +1,13 @@
+knp_snappy:
+    pdf:
+        enabled:    true
+        binary:     '%kernel.project_dir%/wkhtmltopdf/bin/wkhtmltopdf.exe'
+        # binary:     "\"C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe\""
+        # binary:     /usr/local/bin/wkhtmltopdf
+        options:    []
+    image:
+        enabled:    true
+        binary:     '%kernel.project_dir%/wkhtmltopdf/bin/wkhtmltoimage.exe'
+        # binary:     "\"C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltoimage.exe\""
+        # binary:     /usr/local/bin/wkhtmltoimage
+        options:    []
