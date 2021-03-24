@@ -25,7 +25,8 @@ class User implements UserInterface
      */
     private $id;
 
-        /**
+    /**
+     * @Groups("user")
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(
      *      min = 2,
@@ -39,6 +40,7 @@ class User implements UserInterface
     private $firstName;
 
     /**
+     * @Groups("user")
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(
      *      min = 1,
@@ -56,6 +58,43 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=180, unique=true)
      */
     private $email;
+
+    /**
+     * @Groups("user")
+     * @ORM\Column(type="string", length=10)
+     */
+    private $number;
+
+    /**
+     * @Groups("user")
+     * @ORM\Column(type="string", length=255)
+     */
+    private $adress;
+
+    /**
+     * @Groups("user")
+     * @ORM\Column(type="string", length=255)
+     */
+    private $secAdress;
+
+    /**
+     * @Groups("user")
+     * @ORM\Column(type="string", length=5)
+     */
+    private $postcode;
+
+    /**
+     * @Groups("user")
+     * @ORM\Column(type="string", length=30)
+     */
+    private $region;
+
+    /**
+     * @Groups("user")
+     * @ORM\Column(type="string", length=30)
+     */
+    private $country;
+
 
     /**
      * 
@@ -141,6 +180,78 @@ class User implements UserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getNumber(): ?string
+    {
+        return $this->number;
+    }
+
+    public function setNumber(string $number): self
+    {
+        $this->number = $number;
+
+        return $this;
+    }
+
+    public function getAdress(): ?string
+    {
+        return $this->adress;
+    }
+
+    public function setAdress(string $adress): self
+    {
+        $this->adress = $adress;
+
+        return $this;
+    }
+    
+    public function getSecAdress(): ?string
+    {
+        return $this->secAdress;
+    }
+
+    public function setSecAdress(string $secAdress): self
+    {
+        $this->secAdress = $secAdress;
+
+        return $this;
+    }
+
+    public function getPostcode(): ?string
+    {
+        return $this->postcode;
+    }
+
+    public function setPostcode(string $postcode): self
+    {
+        $this->postcode = $postcode;
+
+        return $this;
+    }
+
+    public function getRegion(): ?string
+    {
+        return $this->region;
+    }
+
+    public function setRegion(string $region): self
+    {
+        $this->region = $region;
+
+        return $this;
+    }
+
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(string $country): self
+    {
+        $this->country = $country;
 
         return $this;
     }

@@ -2,10 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Cart;
 use Knp\Snappy\Pdf;
 use App\Entity\Command;
-use App\Entity\Producer;
-use App\Entity\Product;
 use App\Form\CommandType;
 use App\Repository\CommandRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,40 +34,71 @@ class CommandController extends AbstractController
     }
 
     /**
-     * @Route("/new/product/{id}", name="command_new", methods={"GET"})
+     * @Route("/new", name="command_new", methods={"GET"})
      */
-    public function new($id, Pdf $knpSnappyPdf): Response
+    public function new(Pdf $knpSnappyPdf): Response
     {
         $user = $this->getuser();
-        $product = $this->getDoctrine()->getRepository(Product::class)->find($id);
-        $product_owner = $product->getOwner();
+        $cart = $this->getDoctrine()->getRepository(Cart::class)->findOneBy(['user' => $user->getId()]);
+        $cartProducts = $cart->getCartProducts();
+
+        if(count($cartProducts) === 0) {
+            return $this->json([
+                'response' => 'empty cart',
+            ]);
+        }
 
         $fileName = uniqid() . '.pdf';
+        $articles_list = [];
+        $entityManager = $this->getDoctrine()->getManager();
+        $total_price = 0;
+        $nb_articles = 0;
+        foreach($cartProducts as $article) {
+            $product_owner = $article->getProduct()->getOwner();
+            $product = $article->getProduct();
+            $quantity = $article->getQuantity();
 
-        $command = new Command();
-        $command->setSerialNumber(uniqid());
-        $command->setCustomer($user);
-        $command->setProduct($product);
-        $command->setProducer($product_owner);
-        $command->setEtat('En attente');
-        $command->setCreatedAt(new \DateTime("now"));
-        $command->setUpdatedAt(new \DateTime("now"));
-        $command->setDeliveryDateAt(null);
+            $command = new Command();
+            $command->setSerialNumber(uniqid());
+            $command->setCustomer($user);
+            $command->setProduct($product);
+            $command->setQuantity($quantity);
+            $command->setProducer($product_owner);
+            $command->setEtat('En attente');
+            $command->setCreatedAt(new \DateTime("now"));
+            $command->setUpdatedAt(new \DateTime("now"));
+            $command->setDeliveryDateAt(null);
 
+            $command->setInvoice($fileName);
+
+            $cart->removeCartProduct($article);
+
+            $entityManager->persist($command);
+            $entityManager->persist($cart);
+
+            array_push($articles_list, $article);
+
+            $total_price = $total_price + ($product->getPrice() * $quantity);
+            $nb_articles = $nb_articles + 1;
+        }
+        
         $knpSnappyPdf->generateFromHtml(
-            $this->renderView('command/invoice/invoice.html.twig'),
+            $this->renderView('command/invoice/invoice.html.twig', [
+                'cartProducts' => $cartProducts,
+            ]),
             $this->invoiceFilesDirectory . '/public/invoices/'. $fileName
         );
 
-        $command->setInvoice($fileName);
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($command);
         $entityManager->flush();
 
         return $this->json([
             'response' => 'success',
+            'file' => '/public/invoices/public/invoices/'. $fileName,
+            'montant' => $total_price,
+            'nbArticles' => $nb_articles,
         ]);
+        
     }
 
     /**
@@ -82,7 +112,7 @@ class CommandController extends AbstractController
     }
 
     /**
-     * @Route("/{id}", name="command_show", methods={"GET"})
+     * @Route("/{id}", name="command_get", methods={"GET"})
      */
     public function show(Command $command): Response
     {

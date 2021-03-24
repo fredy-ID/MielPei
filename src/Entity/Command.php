@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CommandRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=CommandRepository::class)
@@ -11,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Command
 {
     /**
+     * @Groups("command")
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -34,6 +36,12 @@ class Command
      * @ORM\JoinColumn(nullable=false)
      */
     private $product;
+
+    /**
+     * @Groups("command")
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $quantity;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -103,6 +111,18 @@ class Command
     public function setProduct(?Product $product): self
     {
         $this->product = $product;
+
+        return $this;
+    }
+
+    public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(?int $quantity): self
+    {
+        $this->quantity = $quantity;
 
         return $this;
     }

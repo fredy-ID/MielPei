@@ -1,1 +1,21 @@
+{% extends 'base.html.twig' %}
+{% block stylesheets %}{% endblock %}
+{% block body %}
+
 <h1>Ma facture</h1>
+{% set counter = 1 %}
+
+{% for article in cartProducts %}
+<div class="my-5">
+    <h2>Article {{counter}}</h2>
+    
+    Nom produit : {{ article.product.name }}
+    Quantité : {{ article.quantity }}
+    Prix : {{ article.quantity * article.product.price }}
+    Producteur : {{ article.product.owner.user.lastName }} {{ article.product.owner.user.firstName }}
+</div>
+
+{% endfor %}
+
+{% endblock %}
+{% block javascripts %} {% endblock %}

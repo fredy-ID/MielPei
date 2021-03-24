@@ -30,19 +30,14 @@ class Cart
 
     /**
      * @Groups("cart")
-     * @ORM\ManyToMany(targetEntity=Product::class)
+     * @ORM\OneToMany(targetEntity=CartProducts::class, mappedBy="cart", orphanRemoval=true)
      */
-    private $products;
-
-    /**
-     * @Groups("cart")
-     * @ORM\Column(type="integer")
-     */
-    private $quantity;
+    private $cartProducts;
 
     public function __construct()
     {
         $this->products = new ArrayCollection();
+        $this->cartProducts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -63,37 +58,31 @@ class Cart
     }
 
     /**
-     * @return Collection|Product[]
+     * @return Collection|CartProducts[]
      */
-    public function getProducts(): Collection
+    public function getCartProducts(): Collection
     {
-        return $this->products;
+        return $this->cartProducts;
     }
 
-    public function addProduct(Product $product): self
+    public function addCartProduct(CartProducts $cartProduct): self
     {
-        if (!$this->products->contains($product)) {
-            $this->products[] = $product;
+        if (!$this->cartProducts->contains($cartProduct)) {
+            $this->cartProducts[] = $cartProduct;
+            $cartProduct->setCart($this);
         }
 
         return $this;
     }
 
-    public function removeProduct(Product $product): self
+    public function removeCartProduct(CartProducts $cartProduct): self
     {
-        $this->products->removeElement($product);
-
-        return $this;
-    }
-
-    public function getQuantity(): ?int
-    {
-        return $this->quantity;
-    }
-
-    public function setQuantity(int $quantity): self
-    {
-        $this->quantity = $quantity;
+        if ($this->cartProducts->removeElement($cartProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($cartProduct->getCart() === $this) {
+                $cartProduct->setCart(null);
+            }
+        }
 
         return $this;
     }

@@ -10,6 +10,7 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
@@ -17,9 +18,26 @@ use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 class AccountController extends AbstractController
 {
     /**
-     * @Route("/modify-profile/{firstName}/{lastName}", name="profile")
+     * @Route("/profile/info", name="profile_info")
      */
-    public function index(ValidatorInterface $validator,$firstName, $lastName): Response
+    public function user(SerializerInterface $serializer): Response
+    {
+        $userData = $this->getDoctrine()->getRepository(User::class)->find($this->getUser()->getid());
+
+        $user = $serializer->serialize(
+            $userData,
+            'json', ['groups' => ['user']]
+        );
+
+        return $this->json([
+            'user' => json_decode($user)
+        ]);
+    }
+
+    /**
+     * @Route("/modify-profile/{firstName}/{lastName}/{adress}/{secAdress}/{postcode}/{region}/{country}/{number}", name="profile")
+     */
+    public function index(ValidatorInterface $validator,$firstName, $lastName, $adress, $secAdress, $postcode, $region, $country, $number): Response
     {
         if(($firstName == '' || $lastName == '') || ($firstName == null || $lastName == null)) return $this->json([
             'erreur' => 'Valeurs incorrectes',
@@ -32,6 +50,13 @@ class AccountController extends AbstractController
 
         $user->setFirstName($firstName);
         $user->setLastName($lastName);
+
+        $user->setAdress($adress);
+        $user->setSecAdress($secAdress);
+        $user->setPostcode(strval ($postcode));
+        $user->setRegion($region);
+        $user->setCountry($country);
+        $user->setNumber(strval ($number));
         
 
         $errors = $validator->validate($user);

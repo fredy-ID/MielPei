@@ -8,7 +8,7 @@
         />
 
         <div class="d-flex justify-center">
-          <div class="product d-flex flex-column">
+          <div class="col-4 product d-flex flex-column">
 
             <v-card
               class="mx-auto my-12 pa-5"
@@ -30,7 +30,7 @@
             </v-card>
           </div>
 
-          <div class="product-description my-12 mx-12 d-flex flex-column"
+          <div class="product-description col-6 my-12 mx-12 d-flex flex-column"
           >
             <form>
 
@@ -56,6 +56,72 @@
               @blur="$v.firstName.$touch()"
               ></v-text-field>
 
+              <v-text-field
+              v-model="phoneNumber"
+              :error-messages="phoneNumberError"
+              :counter="10"
+              label="Numéro de téléphone"
+              required
+              @change="verifyInput()"
+              @input="$v.phoneNumber.$touch()"
+              @blur="$v.phoneNumber.$touch()"
+              ></v-text-field>
+
+              <v-text-field
+              v-model="adress"
+              :error-messages="adressError"
+              :counter="200"
+              label="Adresse"
+              required
+              @change="verifyInput()"
+              @input="$v.adress.$touch()"
+              @blur="$v.adress.$touch()"
+              ></v-text-field>
+
+              <v-text-field
+              v-model="secAdress"
+              :error-messages="secAdressError"
+              :counter="200"
+              label="Adresse secondaire"
+              required
+              @change="verifyInput()"
+              @input="$v.secAdress.$touch()"
+              @blur="$v.secAdress.$touch()"
+              ></v-text-field>
+
+              <v-text-field
+              v-model="postcode"
+              :error-messages="postcodeError"
+              :counter="5"
+              label="Code postale"
+              required
+              @change="verifyInput()"
+              @input="$v.postcode.$touch()"
+              @blur="$v.postcode.$touch()"
+              ></v-text-field>
+
+              <v-text-field
+              v-model="region"
+              :error-messages="regionError"
+              :counter="35"
+              label="Région"
+              required
+              @change="verifyInput()"
+              @input="$v.region.$touch()"
+              @blur="$v.region.$touch()"
+              ></v-text-field>
+
+              <v-text-field
+              v-model="country"
+              :error-messages="countryError"
+              :counter="35"
+              label="Pays"
+              required
+              @change="verifyInput()"
+              @input="$v.country.$touch()"
+              @blur="$v.country.$touch()"
+              ></v-text-field>
+
               <v-btn
               v-if="changes"
               class="mr-4"
@@ -64,42 +130,6 @@
                   Sauvegarder
               </v-btn>
           </form>
-
-          <div class="mt-10">
-            <h2>Toutes mes commandes</h2>
-          </div>
-
-            <v-expansion-panels class="mt-10">
-              <v-expansion-panel
-                v-for="(item,i) in 5"
-                :key="i"
-              >
-                <v-expansion-panel-header>
-                  Nom du produit
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <div class="w-100 d-flex">
-                    <div class="col-5">
-                      <v-card
-                        class="mx-auto my-5"
-                        max-width="150"
-                        max-height="150"
-                      >
-                        <v-img
-                          height="150"
-                          src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
-                        ></v-img>
-                      </v-card>
-                    </div>
-                    <div class="col-7">
-                      <p class="my-5">ddd</p>
-                    </div>
-                    
-                  </div>
-                  
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
 
           </div>
 
@@ -145,6 +175,12 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
     validations: {
       firstName: { required, maxLength: maxLength(35), minLength: minLength(2) },
       lastName: { required, maxLength: maxLength(35), minLength: minLength(2) },
+      phoneNumber: { required, maxLength: maxLength(10), minLength: minLength(10) },
+      adress: { required, maxLength: maxLength(200), minLength: minLength(5) },
+      secAdress: { required, maxLength: maxLength(200), minLength: minLength(5) },
+      postcode: { required, maxLength: maxLength(5), minLength: minLength(5) },
+      region: { required, maxLength: maxLength(35), minLength: minLength(5) },
+      country: { required, maxLength: maxLength(35), minLength: minLength(5) },
     },
 
     data() {
@@ -152,6 +188,12 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         nbCommands: 0,
         firstName: '',
         lastName: '',
+        phoneNumber: '',
+        adress: '',
+        secAdress: '',
+        postcode: '',
+        region: '',
+        country: '',
         product: null,
         valid: false,
         changes: false,
@@ -184,6 +226,54 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         !this.$v.lastName.required && errors.push('Champ requis')
         return errors
       },
+      phoneNumberError () {
+        const errors = []
+        if (!this.$v.phoneNumber.$dirty) return errors
+        !this.$v.phoneNumber.maxLength && errors.push('Numéro invalide')
+        !this.$v.phoneNumber.minLength && errors.push('Numéro invalide')
+        !this.$v.phoneNumber.required && errors.push('Champ requis')
+        return errors
+      },
+      adressError () {
+        const errors = []
+        if (!this.$v.adress.$dirty) return errors
+        !this.$v.adress.minLength && errors.push('Adresse trop court')
+        !this.$v.adress.maxLength && errors.push('erreur')
+        !this.$v.adress.required && errors.push('Champ requis')
+        return errors
+      },
+      secAdressError () {
+        const errors = []
+        if (!this.$v.secAdress.$dirty) return errors
+        !this.$v.secAdress.minLength && errors.push('Adresse trop court')
+        !this.$v.secAdress.maxLength && errors.push('erreur')
+        !this.$v.secAdress.required && errors.push('Champ requis')
+        return errors
+      },
+      postcodeError () {
+        const errors = []
+        if (!this.$v.postcode.$dirty) return errors
+        !this.$v.postcode.minLength && errors.push('Code postal invalide')
+        !this.$v.postcode.maxLength && errors.push('Code postal invalide')
+        !this.$v.postcode.required && errors.push('Champ requis')
+        return errors
+      },
+      regionError () {
+        const errors = []
+        if (!this.$v.region.$dirty) return errors
+        !this.$v.region.minLength && errors.push('erreur')
+        !this.$v.region.maxLength && errors.push('erreur')
+        !this.$v.region.required && errors.push('Champ requis')
+        return errors
+      },
+      countryError () {
+        const errors = []
+        if (!this.$v.country.$dirty) return errors
+        !this.$v.country.minLength && errors.push('erreur')
+        !this.$v.country.maxLength && errors.push('erreur')
+        !this.$v.country.required && errors.push('Champ requis')
+        return errors
+      },
     },
 
     methods: {
@@ -194,20 +284,30 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         
         this.updateCart()
         this.product = response.data.product;
-
-        console.log(this.product)
       },
 
       async updateCart() {
         const response = await axios.get("/cart/all/commands");
         if(response.data.cart.length > 0) {
-          var cart = response.data.cart[0].products;
+          var cart = response.data.cart[0].cartProducts;
           this.nbCommands = cart
         }
           this.user = response.data.user;
           this.producer = response.data.producer;
+
+          console.log(response)
+
           this.firstName = response.data.user_firstName;
           this.lastName = response.data.user_lastName;
+          this.adress = response.data.user_adress;
+          this.secAdress = response.data.user_secAdress;
+          this.postcode = response.data.user_postcode;
+          this.region = response.data.user_region;
+          this.country = response.data.user_country;
+          this.phoneNumber = response.data.user_phoneNumber;
+
+          this.password = response.data.user_password;
+          this.plainPassword = response.data.user_plainPassword;
         
       },
 
@@ -222,9 +322,16 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
       submit () {
         this.$v.$touch()
 
-        console.log(this.lastName, this.firstName);
-
-        var msg = axios.post('/modify-profile/' + this.firstName + '/' + this.lastName)
+        var msg = axios.post('/modify-profile/' 
+        + this.firstName + '/' 
+        + this.lastName + '/'
+        + this.adress + '/'
+        + this.secAdress + '/'
+        + this.postcode + '/'
+        + this.region + '/'
+        + this.country + '/'
+        + this.phoneNumber
+        )
         .then(function (response) {
             console.log(response.data);
 
@@ -244,13 +351,25 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
 
       clear () {
         this.$v.$reset()
-        this.name = ''
-        this.description = ''
+
+          this.firstName = '';
+          this.lastName = '';
+          this.adress = '';
+          this.secAdress = '';
+          this.postcode = '';
+          this.region = '';
+          this.country = '';
+          this.phoneNumber = '';
+
       },
       verifyInput() {
 
         if((this.firstName != '' && this.firstName != null) && (this.lastName != '' && this.lastName != null)) {
-          this.changes = true;
+
+          if((this.plainPassword === null && this.password === null) || (this.plainPassword !== null && this.plainPassword === this.password)) {
+            this.changes = true;
+          }
+
         } else {
           this.changes = false;
         }

@@ -71,6 +71,7 @@ class Product
     public function __construct()
     {
         $this->commands = new ArrayCollection();
+        $this->cartProducts = new ArrayCollection();
     }
 
     public function getId(): ?int

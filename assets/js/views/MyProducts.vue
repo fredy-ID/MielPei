@@ -58,7 +58,6 @@ import ProductCard from '../components/cards/product';
         user: null,
         producer: false,
       };
-      
     },
 
     name: "Home",
@@ -73,8 +72,6 @@ import ProductCard from '../components/cards/product';
           this.products.push(product)
         });
         this.updateCart()
-
-        console.log(this.products);
       },
 
       async updateCart() {
