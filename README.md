@@ -8,6 +8,11 @@
 - composer install
 - symfony serve
 
+## Connexion
+Il est nécessaire de s'enregistrer avant de pouvoir s'y connecter.
+Le seul moyen actuel d'y accéder étant de taper directement dans l'url
+ - /register (pour l'inscription)
+ - / login (pour la connexion)
 
 ## KNP_SNAPPY
 
@@ -19,3 +24,4 @@ En plus de l'aspect graphique qui n'est pas faites, l'application n'est pas term
 
 - Gestion des utilisateurs par l'administrateur
 - Visualisations des commandes en cours et passées
+
