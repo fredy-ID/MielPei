@@ -18,7 +18,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 class User implements UserInterface
 {
     /**
-     * @Groups("user")
+     * @Groups({"user", "admin"})
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -26,7 +26,7 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @Groups("user")
+     * @Groups({"user", "admin"})
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(
      *      min = 2,
@@ -40,7 +40,7 @@ class User implements UserInterface
     private $firstName;
 
     /**
-     * @Groups("user")
+     * @Groups({"user", "admin"})
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(
      *      min = 1,
@@ -54,50 +54,49 @@ class User implements UserInterface
     private $lastName;
 
     /**
-     * @Groups("user")
+     * @Groups({"user", "admin"})
      * @ORM\Column(type="string", length=180, unique=true)
      */
     private $email;
 
     /**
-     * @Groups("user")
+     * @Groups({"user", "admin"})
      * @ORM\Column(type="string", length=10)
      */
     private $number;
 
     /**
-     * @Groups("user")
-     * @ORM\Column(type="string", length=255)
+     * @Groups({"user", "customer"})
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $adress;
 
     /**
-     * @Groups("user")
-     * @ORM\Column(type="string", length=255)
+     * @Groups({"user", "customer"})
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $secAdress;
 
     /**
-     * @Groups("user")
-     * @ORM\Column(type="string", length=5)
+     * @Groups({"user", "customer"})
+     * @ORM\Column(type="string", length=5, nullable=true)
      */
     private $postcode;
 
     /**
-     * @Groups("user")
-     * @ORM\Column(type="string", length=30)
+     * @Groups({"user", "customer"})
+     * @ORM\Column(type="string", length=30, nullable=true)
      */
     private $region;
 
     /**
-     * @Groups("user")
-     * @ORM\Column(type="string", length=30)
+     * @Groups({"user", "customer"})
+     * @ORM\Column(type="string", length=30, nullable=true)
      */
     private $country;
 
-
     /**
-     * 
+     * @Groups("admin")
      * @ORM\Column(type="json")
      */
     private $roles = [];
@@ -127,6 +126,7 @@ class User implements UserInterface
     private $cart;
 
     /**
+     * @Groups("admin")
      * @ORM\Column(type="boolean")
      */
     private $isVerified = false;
@@ -135,6 +135,17 @@ class User implements UserInterface
      * @ORM\OneToMany(targetEntity=ProducerRequest::class, mappedBy="user")
      */
     private $producerRequests;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Admin::class, mappedBy="user", cascade={"persist", "remove"})
+     */
+    private $admin;
+
+    /**
+     * @Groups("admin")
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isActive;
 
     public function __construct()
     {
@@ -419,6 +430,35 @@ class User implements UserInterface
                 $producerRequest->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAdmin(): ?Admin
+    {
+        return $this->admin;
+    }
+
+    public function setAdmin(Admin $admin): self
+    {
+        // set the owning side of the relation if necessary
+        if ($admin->getUser() !== $this) {
+            $admin->setUser($this);
+        }
+
+        $this->admin = $admin;
+
+        return $this;
+    }
+
+    public function getIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(?bool $isActive): self
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }

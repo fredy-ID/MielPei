@@ -19,3 +19,18 @@ En plus de l'aspect graphique qui n'est pas faites, l'application n'est pas term
 
 - Gestion des utilisateurs par l'administrateur
 - Visualisations des commandes en cours et passées
+
+
+## Powerpoint
+
+## Etapes de démonstration
+
+
+21 Avril
+
+
+Avril : 
+Tout les mobiles (pour juin)
+React Native - Kotlin - Flutter (Groupe)
+
+Mai : 

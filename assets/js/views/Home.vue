@@ -5,6 +5,7 @@
           @update-cart="updateCart"
           :user="user"
           :producer="producer"
+          :admin="admin"
         />
 
         <!-- <div data-controller="hello"></div>
@@ -39,6 +40,7 @@ import ProductCard from '../components/cards/product';
         nbCommands: 0,
         user: null,
         producer: false,
+        admin: false,
       };
       
     },

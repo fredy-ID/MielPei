@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Serializer\Encoder\JsonDecode;
 
 /**
  * @Route("/product")
@@ -37,7 +38,7 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/my-products", name="product_my_products", methods={"GET"})
+     * @Route("/iventaire", name="product_my_products", methods={"GET"})
      */
     public function myProducts(SerializerInterface $serializer): Response
     {
@@ -55,8 +56,14 @@ class ProductController extends AbstractController
             'json', ['groups' => ['products' /* if you add "user_detail" here you get circular reference */]]
         );
 
+        $commands = $serializer->serialize(
+            $user->getProducerProfile()->getCommands(),
+            'json', ['groups' => ['command', 'products', 'customer' /* if you add "user_detail" here you get circular reference */]]
+        );
+
         return $this->json([
             'products' => json_decode($products),
+            'commands' => json_decode($commands),
         ]);
     }
 

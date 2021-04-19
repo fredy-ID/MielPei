@@ -5,11 +5,12 @@
           @update-cart="updateCart"
           :user="user"
           :producer="producer"
+          :admin="admin"
         />
 
 
         <div class="mt-12 ml-12 text-center">
-            <h1>Faire une demande Producteur</h1>
+            <h1>Vous êtes producteur ?</h1>
         </div>
 
         <v-card

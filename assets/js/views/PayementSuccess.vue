@@ -5,6 +5,7 @@
           @update-cart="updateCart"
           :user="user"
           :producer="producer"
+          :admin="admin"
         />
 
         <div class="pa-16">
@@ -54,6 +55,7 @@ import ProductCard from '../components/cards/product';
         nbCommands: 0,
         user: null,
         producer: false,
+        admin: false,
         file_path: '',
         total : 0,
         nbArticles: 0,

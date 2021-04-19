@@ -2,14 +2,15 @@
 
 namespace App\Controller;
 
-use App\Entity\Cart;
 use Knp\Snappy\Pdf;
+use App\Entity\Cart;
 use App\Entity\Command;
 use App\Form\CommandType;
 use App\Repository\CommandRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 /**
@@ -24,13 +25,34 @@ class CommandController extends AbstractController
     }
 
     /**
-     * @Route("/", name="command_index", methods={"GET"})
+     * @Route("/user/{id}", name="command_index", methods={"GET"})
      */
-    public function index(CommandRepository $commandRepository): Response
+    public function index(CommandRepository $commandRepository, $id, SerializerInterface $serializer): Response
     {
-        return $this->render('command/index.html.twig', [
-            'commands' => $commandRepository->findAll(),
-        ]);
+        $user = $this->getUser();
+        $requestId = intval($id);
+
+        if($user->getId() === $requestId) {
+
+            $commands_data = $commandRepository->findBy(['customer' => $user]);
+
+            $commands = $serializer->serialize(
+                $commands_data,
+                'json', ['groups' => ['command', 'products']]
+                
+            );
+
+
+            return $this->json([
+                'commands' => json_decode($commands),
+            ]);
+        } else {
+            return $this->json([
+                'commands' => null,
+                'user' => $requestId,
+                'user_session' => $user->getId(),
+            ]);
+        }
     }
 
     /**
@@ -64,7 +86,13 @@ class CommandController extends AbstractController
             $command->setProduct($product);
             $command->setQuantity($quantity);
             $command->setProducer($product_owner);
+            $command->setAdress($user->getAdress());
+            $command->setSecAdress($user->getSecAdress());
+            $command->setPostcode($user->getPostcode());
+            $command->setRegion($user->getRegion());
+            $command->setCountry($user->getCountry());
             $command->setEtat('En attente');
+            $command->setIsActive(true);
             $command->setCreatedAt(new \DateTime("now"));
             $command->setUpdatedAt(new \DateTime("now"));
             $command->setDeliveryDateAt(null);
@@ -122,23 +150,28 @@ class CommandController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="command_edit", methods={"GET","POST"})
+     * @Route("/{commandId}/state/{state}", name="command_edit", methods={"GET","POST"})
      */
-    public function edit(Request $request, Command $command): Response
+    public function edit(CommandRepository $commandRepository, int $commandId, string $state): Response
     {
-        $form = $this->createForm(CommandType::class, $command);
-        $form->handleRequest($request);
+        $command = $commandRepository->find($commandId);
+        $command->setEtat($state);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
-
-            return $this->redirectToRoute('command_index');
+        if($state === "Envoyé") {
+            $command->setIsActive(false);
+            $command->setDeliveryDateAt(new \DateTime("now"));
+        } else {
+            $command->setIsActive(true);
+            $command->setDeliveryDateAt(null);
         }
 
-        return $this->render('command/edit.html.twig', [
-            'command' => $command,
-            'form' => $form->createView(),
-        ]);
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($command);
+        $entityManager->flush();
+
+        return $this->json([
+            'message' => "ok",
+        ], 200);
     }
 
     /**

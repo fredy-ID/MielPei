@@ -5,6 +5,7 @@
           @update-cart="updateCart"
           :user="user"
           :producer="producer"
+          :admin="admin"
         />
 
         <div class="d-flex justify-center">
@@ -93,6 +94,7 @@ import ProductCard from '../components/cards/product';
         ],
         user: null,
         producer: false,
+        admin: false,
       };
       
     },

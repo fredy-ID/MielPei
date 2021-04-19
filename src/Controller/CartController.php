@@ -95,17 +95,31 @@ class CartController extends AbstractController
             
         );
 
+        if($user === null) {
+            $user_id = $user_lastName = $user_firstName = $user_adress = $user_secAdress = $user_postcode = $user_region = $user_country = $user_phoneNumber = null;
+        } else {
+            $user_id = $user->getId();
+            $user_lastName = $user->getLastName();
+            $user_firstName = $user->getFirstName();
+            $user_adress = $user->getAdress();
+            $user_secAdress = $user->getSecAdress();
+            $user_postcode = $user->getPostcode();
+            $user_region = $user->getRegion();
+            $user_country = $user->getCountry();
+            $user_phoneNumber = $user->getNumber();
+        }
+
         return $this->json([
             'cart' => json_decode($cart),
-            'user' => $user->getId(),
-            'user_lastName' => $user->getLastName(),
-            'user_firstName' => $user->getFirstName(),
-            'user_adress' => $user->getAdress(),
-            'user_secAdress' => $user->getSecAdress(),
-            'user_postcode' => $user->getPostcode(),
-            'user_region' => $user->getRegion(),
-            'user_country' => $user->getCountry(),
-            'user_phoneNumber' => $user->getNumber(),
+            'user' => $user_id,
+            'user_lastName' => $user_lastName,
+            'user_firstName' => $user_firstName,
+            'user_adress' => $user_adress,
+            'user_secAdress' => $user_secAdress,
+            'user_postcode' => $user_postcode,
+            'user_region' => $user_region,
+            'user_country' => $user_country,
+            'user_phoneNumber' => $user_phoneNumber,
             'producer' => $producer,
         ]);
     }

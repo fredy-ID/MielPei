@@ -5,6 +5,7 @@
           @update-cart="updateCart"
           :user="user"
           :producer="producer"
+          :admin="admin"
         />
 
         <!-- <div data-controller="hello"></div>
@@ -12,7 +13,7 @@
         
         <div class="mt-12 ml-12 d-flex">
           <div class="col-3">
-            <h1>Inventaire</h1>
+            <h1>Mes produits</h1>
           </div>
           <div class="col-9 d-flex align-center">
             <router-link :to="{ name: 'product-creation'}">
@@ -27,15 +28,124 @@
               
           </div>
         </div>
+        
+        <div class="pa-sm-16">
+          <v-row>
 
-        <div class="d-flex flex-row flex-wrap">
-          <ProductCard
-            v-for="product in this.products"
-            v-bind:key="product.id"
-            :product="product"
-            :action="'mes-produits'"
-            @update-cart="updateCart"
-           />
+            <v-col
+              cols=6
+              sm="8"
+              class="flex-grow-0 flex-shrink-0"
+            > 
+              <div class="d-flex flex-row flex-wrap">
+                <ProductCard
+                  v-for="product in this.products"
+                  v-bind:key="product.id"
+                  :product="product"
+                  :action="'mes-produits'"
+                  @update-cart="updateCart"
+                />
+              </div>
+            </v-col>
+
+            <v-col
+              cols=6
+              sm="4"
+              class="flex-grow-0 flex-shrink-0"
+            >
+            
+              <div class="mb-10">
+                  <h2>Commandes en cours</h2>
+                  <p v-if="activeCommands.length === 0">Aucune commande en cours de traitement</p>
+              </div>
+
+                <v-card
+                  class="mx-auto"
+                  tile
+                  v-for="command in activeCommands"
+                  v-bind:key="command.id"
+                >
+                  <v-list-item four-line>
+                    <v-list-item-content>
+                      <v-list-item-title>{{command.product.name}} x{{command.quantity}} ({{ command.product.price * command.quantity }}€)</v-list-item-title>
+
+                      <v-list-item-subtitle class="mt-3">
+                        Commandé le : {{ date(command.createdAt) }}
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="mt-3">
+                        <div>
+                          Adresse de livraison : {{ command.adress }} <br />
+                          Complément d'adresse : {{ command.secAdress }} <br />
+                          Code postale : {{ command.postcode }} <br />
+                          Région : {{ command.region }} <br />
+                          Pays : {{ command.country }} <br />
+                        </div>
+                      </v-list-item-subtitle>
+
+                      <v-list-item-subtitle class="mt-10">
+                        Etat d'avancement : {{ command.etat }}
+                        <v-select
+                          @change="updateState(command.id)"
+                          class="mt-5"
+                          :hint="`Choisissez un état`"
+                          v-model="select"
+                          :value="command.etat"
+                          :items="state"
+                          solo
+                          :disabled="(update === true) ? true : false"
+                        ></v-select>
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-card>
+
+                <div class="mt-16 mb-10">
+                    <h2>Commandes traitées </h2>
+                    <p v-if="oldCommands.length === 0">Aucune commande traitée à ce jour</p>
+                </div>
+
+                <v-card
+                  class="mx-auto"
+                  tile
+                  v-for="command in oldCommands"
+                  v-bind:key="command.id"
+                >
+                  <v-list-item four-line>
+                    <v-list-item-content>
+                      <v-list-item-title>{{command.product.name}} x{{command.quantity}} ({{ command.product.price * command.quantity }}€)</v-list-item-title>
+
+                      <v-list-item-subtitle class="mt-3">
+                        Commandé le : {{ date(command.createdAt) }}
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="mt-3">
+                        <div>
+                          Adresse de livraison : {{ command.adress }} <br />
+                          Complément d'adresse : {{ command.secAdress }} <br />
+                          Code postale : {{ command.postcode }} <br />
+                          Région : {{ command.region }} <br />
+                          Pays : {{ command.country }} <br />
+                        </div>
+                      </v-list-item-subtitle>
+
+                      <v-list-item-subtitle class="mt-10">
+                        Etat d'avancement : {{ command.etat }}
+                        <v-select
+                          @change="updateState(command.id)"
+                          class="mt-5"
+                          :hint="`Choisissez un état`"
+                          v-model="select"
+                          :value="command.etat"
+                          :items="state"
+                          solo
+                          :disabled="(update === true) ? true : false"
+                        ></v-select>
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-card>
+            </v-col>
+            
+          </v-row>
         </div>
         
     </div>
@@ -45,43 +155,86 @@
 const axios = require('axios');
 import AppBar from '../stores/header';
 import ProductCard from '../components/cards/product';
+import moment from 'moment';
 
   export default {
     components: {
         AppBar,
         ProductCard,
+
     },
     data() {
       return{
+        activeCommands: [],
+        oldCommands: [],
+        totalPrice: 0,
         products: [],
         nbCommands: 0,
+        select: "",
+        update: false,
+        state: [
+          "En attente",
+          "En cours d'acheminement",
+          "En cours d'envoi",
+          "Envoyé",
+        ],
         user: null,
         producer: false,
+        admin: false,
       };
     },
 
     name: "Home",
 
     methods: {
+
+      async updateState(commandId) {
+        this.update = true;
+        const response = await axios.get("/command/"+commandId+"/state/"+this.select);
+        this.initialize();
+
+        this.update = false;
+      },
+
+      date: function (date) {
+        return moment(date).locale("fr").format('Do MMMM YYYY');
+      },
       
       async initialize() {
         this.products = [];
-        const response = await axios.get("/product/my-products");
-        
+        const response = await axios.get("/product/iventaire");
+
+        var commands = response.data.commands;
+        console.log(response)
         response.data.products.forEach(product => {
           this.products.push(product)
         });
+
+        this.activeCommands = [];
+        this.oldCommands = [];
+        commands.forEach(element => {
+          if(element.isActive) {
+            this.activeCommands.push(element);
+          } else {
+            this.oldCommands.push(element)
+          }
+          
+          this.totalPrice = this.totalPrice + element.total;
+        });
+        console.log(this.activeCommands)
+        console.log(this.oldCommands)
         this.updateCart()
       },
 
       async updateCart() {
-            const response = await axios.get("/cart/all/commands");
-            if(response.data.cart.length > 0) {
-              var cart = response.data.cart[0].products;
-              this.nbCommands = cart
-            }
-              this.user = response.data.user;
-              this.producer = response.data.producer;
+        const response = await axios.get("/cart/all/commands");
+        if(response.data.cart.length > 0) {
+          var cart = response.data.cart[0].products;
+          this.nbCommands = cart
+        }
+        this.user = response.data.user;
+        this.producer = response.data.producer;
+            
       },
 
     },

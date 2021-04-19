@@ -5,6 +5,7 @@
           @update-cart="updateCart"
           :user="user"
           :producer="producer"
+          :admin="admin"
         />
 
 
@@ -18,7 +19,6 @@
         >
 
         <form>
-
             <v-text-field
             v-model="name"
             :error-messages="nameErrors"
@@ -136,6 +136,7 @@ import { required, maxLength } from 'vuelidate/lib/validators'
         text: ``,
         user: null,
         producer: false,
+        admin: false,
       };
     },
 

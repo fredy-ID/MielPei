@@ -5,6 +5,7 @@
           @update-cart="updateCart"
           :user="user"
           :producer="producer"
+          :admin="admin"
         />
 
         <div class="d-flex justify-center">
@@ -199,6 +200,7 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         changes: false,
         user: null,
         producer: false,
+        admin: false,
         snackbar: false,
         text: ``,
       };

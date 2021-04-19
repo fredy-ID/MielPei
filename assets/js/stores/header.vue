@@ -129,6 +129,7 @@
           v-model="group"
           active-class="deep-purple--text text--accent-4"
         >
+
           <v-list-item>
               <v-list-item-icon>
                 <v-icon>mdi-account</v-icon>
@@ -136,6 +137,28 @@
               <v-list-item-title>
                 <router-link to="/">
                   Accueil
+                </router-link> 
+              </v-list-item-title>
+          </v-list-item>
+
+          <v-list-item v-if="user !== null && admin === true">
+              <v-list-item-icon>
+                <v-icon>mdi-account</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>
+                <router-link to="/admin">
+                  Admin Dashboard
+                </router-link> 
+              </v-list-item-title>
+          </v-list-item>
+
+          <v-list-item v-if="user !== null && producer === true">
+              <v-list-item-icon>
+                <v-icon>mdi-account</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>
+                <router-link to="/producer/products">
+                  Ma boutique
                 </router-link> 
               </v-list-item-title>
           </v-list-item>
@@ -147,17 +170,6 @@
               <v-list-item-title>
                 <router-link to="/compte">
                   Compte
-                </router-link> 
-              </v-list-item-title>
-          </v-list-item>
-
-          <v-list-item v-if="user !== null && producer === true">
-              <v-list-item-icon>
-                <v-icon>mdi-account</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title>
-                <router-link to="/product/my-products">
-                  Ma boutique
                 </router-link> 
               </v-list-item-title>
           </v-list-item>
@@ -225,7 +237,7 @@ const axios = require('axios');
         { title: 'Click Me 2' },
       ],
     }),
-    props: ["nbCommands", "user", "producer"],
+    props: ["nbCommands", "user", "producer", "admin"],
     methods: {
      async remove(itemId) {
         const response = await axios.get("/cart/remove/item/" + itemId);

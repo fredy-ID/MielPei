@@ -32,6 +32,7 @@ class Command
 
 
     /**
+     * @Groups("command")
      * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="commands")
      * @ORM\JoinColumn(nullable=false)
      */
@@ -44,21 +45,25 @@ class Command
     private $quantity;
 
     /**
+     * @Groups("command")
      * @ORM\Column(type="string", length=255)
      */
     private $invoice;
 
     /**
+     * @Groups("command")
      * @ORM\Column(type="string", length=20)
      */
     private $etat;
 
     /**
+     * @Groups("command")
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $deliveryDateAt;
 
     /**
+     * @Groups("command")
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
@@ -73,6 +78,42 @@ class Command
      * @ORM\JoinColumn(nullable=false)
      */
     private $producer;
+
+    /**
+     * @Groups("command")
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $isActive;
+
+    /**
+     * @Groups("command")
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $adress;
+
+    /**
+     * @Groups("command")
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $secAdress;
+
+    /**
+     * @Groups("command")
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $postcode;
+
+    /**
+     * @Groups("command")
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $region;
+
+    /**
+     * @Groups("command")
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private $country;
 
     public function getId(): ?int
     {
@@ -195,6 +236,78 @@ class Command
     public function setProducer(?Producer $producer): self
     {
         $this->producer = $producer;
+
+        return $this;
+    }
+
+    public function getIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(?bool $isActive): self
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getAdress(): ?string
+    {
+        return $this->adress;
+    }
+
+    public function setAdress(?string $adress): self
+    {
+        $this->adress = $adress;
+
+        return $this;
+    }
+
+    public function getSecAdress(): ?string
+    {
+        return $this->secAdress;
+    }
+
+    public function setSecAdress(?string $secAdress): self
+    {
+        $this->secAdress = $secAdress;
+
+        return $this;
+    }
+
+    public function getPostcode(): ?int
+    {
+        return $this->postcode;
+    }
+
+    public function setPostcode(?int $postcode): self
+    {
+        $this->postcode = $postcode;
+
+        return $this;
+    }
+
+    public function getRegion(): ?string
+    {
+        return $this->region;
+    }
+
+    public function setRegion(?string $region): self
+    {
+        $this->region = $region;
+
+        return $this;
+    }
+
+    public function getCountry(): ?string
+    {
+        return $this->country;
+    }
+
+    public function setCountry(?string $country): self
+    {
+        $this->country = $country;
 
         return $this;
     }
