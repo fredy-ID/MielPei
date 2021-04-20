@@ -24,8 +24,8 @@
                     </div>
                     <p>Nombre d'articles : {{ nbArticles }} </p>
                     <p>Montant : {{ total }} </p>
-                    <p>Etat : En cours de traitement</p>
-                    <p>Facture : <a :href="this.file_path" rel="facture">Consulter</a></p>
+                    <p>Etat : En attente</p>
+                    <p>Facture : <a :href="this.file_path" target="_blank" rel="facture">Consulter</a></p>
                     <router-link :to="{ name: 'home'}">
                         <v-btn block class="mt-10">
                             Continuer mon shopping
@@ -59,6 +59,9 @@ import ProductCard from '../components/cards/product';
         file_path: '',
         total : 0,
         nbArticles: 0,
+
+        items: [],
+        totalPrice: 0,
       };
     },
 
@@ -71,19 +74,33 @@ import ProductCard from '../components/cards/product';
       },
 
       async updateCart() {
-            const command = await axios.get("/command/new");
+          const command = await axios.get("/command/new");
+          console.log(command.data.file)
+          this.file_path = command.data.file;
+          this.total = command.data.montant;
+          this.nbArticles = command.data.nbArticles;
 
-            this.file_path = command.data.file;
-            this.total = command.data.montant;
-            this.nbArticles = command.data.nbArticles;
-
-            const response = await axios.get("/cart/all/commands");
-            if(response.data.cart.length > 0) {
-              var cart = response.data.cart[0].products;
-              this.nbCommands = cart
-            }
-              this.user = response.data.user;
-              this.producer = response.data.producer;
+          const response = await axios.get("/cart/all/commands");
+          if(response.data.cart.length > 0) {
+            var cart = response.data.cart[0].cartProducts;
+            this.nbCommands = cart
+          }
+            this.user = response.data.user;
+            this.producer = response.data.producer;
+            
+            this.items = [];
+            this.nbCommands.forEach(element => {
+              var item = {
+                name: element.product.name,
+                image: 'image',
+                description: element.product.description,
+                price: element.product.price,
+                quantity: element.quantity,
+                total: (element.product.price * element.quantity),
+              }
+              this.items.push(item);
+              this.totalPrice = this.totalPrice + item.total;
+            });
       },
 
     },

@@ -122,7 +122,7 @@ class CommandController extends AbstractController
 
         return $this->json([
             'response' => 'success',
-            'file' => '/public/invoices/public/invoices/'. $fileName,
+            'file' => '/invoices/public/invoices/'. $fileName,
             'montant' => $total_price,
             'nbArticles' => $nb_articles,
         ]);

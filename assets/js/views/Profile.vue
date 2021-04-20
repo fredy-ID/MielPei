@@ -19,11 +19,10 @@
               <div class="mb-10">
                 <h2>Informations personnelles</h2>
               </div>
-              <p>Producteur : <span class="text-light">Non</span></p>
-              <p>Courriel : <span class="text-light">freddaou@hotmail.fr</span></p>
-              <p>Email vérifié : <span class="text-light">Non</span></p>
-              <p>Producteur : <span class="text-light">Non</span></p>
-              <router-link :to="{ name: 'producer-request'}">
+              <p>Producteur : <span class="text-light">{{(producer === true) ? 'Oui' : 'Non'}}</span></p>
+              <p>Courriel : <span class="text-light">{{email}}</span></p>
+              <p>Email vérifié : <span class="text-light">{{(user_isVerified === true) ? 'Oui' : 'Non' }}</span></p>
+              <router-link :to="{ name: 'producer-request' }" v-if="(!producer && !admin) && producer != null">
                 <v-btn block class="mt-10">
                   Devenir producteur
                 </v-btn>
@@ -189,9 +188,11 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         nbCommands: 0,
         firstName: '',
         lastName: '',
+        email: null,
         phoneNumber: '',
         adress: '',
         secAdress: '',
+        user_isVerified: '',
         postcode: '',
         region: '',
         country: '',
@@ -199,7 +200,7 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         valid: false,
         changes: false,
         user: null,
-        producer: false,
+        producer: null,
         admin: false,
         snackbar: false,
         text: ``,
@@ -307,7 +308,9 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
           this.region = response.data.user_region;
           this.country = response.data.user_country;
           this.phoneNumber = response.data.user_phoneNumber;
-
+          this.user_isVerified = response.data.user_isVerified;
+          
+          this.email = response.data.user_email;
           this.password = response.data.user_password;
           this.plainPassword = response.data.user_plainPassword;
         
@@ -323,8 +326,9 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
 
       submit () {
         this.$v.$touch()
+        var result = "";
 
-        var msg = axios.post('/modify-profile/' 
+        const response = axios.post('/modify-profile/' 
         + this.firstName + '/' 
         + this.lastName + '/'
         + this.adress + '/'
@@ -334,20 +338,19 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         + this.country + '/'
         + this.phoneNumber
         )
-        .then(function (response) {
-            console.log(response.data);
-
-            return response.data.msg;
+        .then( () => {
+            return true;
         })
         .catch(function (error) {
             console.log("Une erreur est survenue", error);
-            return 'erreur'
+            return false
         });
+        console.log(response)
 
-        this.text = msg;
-        this.changes = true;
-        console.log(msg)
+        this.text = result;
         this.snackbar = true;
+
+        this.changes = false;
 
       },
 

@@ -32,7 +32,6 @@
                 <v-dialog
                   v-model="dialog"
                   max-width="500px"
-                  
                 >
                   <!-- <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -103,7 +102,7 @@
                       <v-btn
                         color="blue darken-1"
                         text
-                        @click="save"
+                        @click="modifyUserRole"
                       >
                         Sauvegarder
                       </v-btn>
@@ -112,7 +111,7 @@
                 </v-dialog>
                 <v-dialog v-model="dialogDelete" max-width="500px">
                   <v-card>
-                    <v-card-title class="headline">Voulez-vous réellement désactiver cet utilisateur ?</v-card-title>
+                    <v-card-title class="headline">{{ (editedItem.state === 'Oui') ? 'Désactiver' : 'Activer' }} cet utilisateur ?</v-card-title>
                     <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
@@ -124,7 +123,7 @@
               </v-toolbar>
             </template>
             <template v-slot:item.actions="{ item }">
-              <v-icon
+              <v-icon 
                 small
                 class="mr-2"
                 @click="editItem(item)"
@@ -216,6 +215,10 @@ import ProductCard from '../components/cards/product';
         user: [],
         users: [],
         producer: false,
+
+        selectedUserId : null, 
+        selectedUserisAdmin: false, 
+        selectedUserisProducer: false,
       }
     },
 
@@ -292,7 +295,7 @@ import ProductCard from '../components/cards/product';
     
 
 
-      async updateRoles($userId, roles) {
+      updateRoles(userId, roles) {
         console.log(roles)
         var isProducer = false;
         var isAdmin = false;
@@ -309,16 +312,26 @@ import ProductCard from '../components/cards/product';
           }
         })
 
-        if(!isAdmin && isProducer){
-          const response = await axios.get(`/users/${$userId}/role/${0}`);
-          console.log(response)
+        this.selectedUserId = userId;
+        this.selectedUserisAdmin = isAdmin;
+        this.selectedUserisProducer = isProducer;
+      },
+      
+     async modifyUserRole() {
+
+        var userId = this.selectedUserId;
+        var isAdmin = this.selectedUserisAdmin;
+        var isProducer =this.selectedUserisProducer;
+
+        if((!isAdmin && isProducer)){
+          const response = await axios.get(`/users/${userId}/role/${0}`);
 
         } else if (!isAdmin && !isProducer) {
-          const response = await axios.get(`/users/${$userId}/role/${1}`);
+          const response = await axios.get(`/users/${userId}/role/${1}`);
         }
 
         this.initialize();
-
+        this.dialog = false
       },
 
 
@@ -341,6 +354,7 @@ import ProductCard from '../components/cards/product';
       deleteItem (item) {
         this.editedIndex = this.desserts.indexOf(item)
         this.editedItem = Object.assign({}, item)
+        console.log(this.editedItem.state)
         this.dialogDelete = true
       },
 

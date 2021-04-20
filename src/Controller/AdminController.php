@@ -41,7 +41,7 @@ class AdminController extends AbstractController
 
         $IS_PRODUCER = 1;
 
-        if($spy === $IS_PRODUCER) {
+        if(intval($spy) === $IS_PRODUCER) {
             $user->setRoles(['ROLE_USER', 'ROLE_PRODUCER']);
         } else {
             $user->setRoles(['ROLE_USER']);
@@ -57,7 +57,7 @@ class AdminController extends AbstractController
     }
 
     /**
-     * @Route("/users/{id}/state-change", name="admin_update_role")
+     * @Route("/users/{id}/state-change", name="admin_update_state")
      */
     public function desactivateUser(UserRepository $userRepository, $id) {
         $user = $userRepository->find($id);

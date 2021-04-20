@@ -9,6 +9,16 @@
         />
 
         <div class="pa-16">
+
+          <v-alert
+            v-if="!isComplete"
+            border="top"
+            color="red lighten-2"
+            dark
+          >
+            Votre adresse de livraison est incomplete.
+          </v-alert>
+
           <div class="mb-10">
               <h2>Récapitulatif de la commande</h2>
           </div>
@@ -69,7 +79,7 @@
             <v-list-item>
               <v-list-item-content>
                 <v-list-item-title v-if="(user['lastName'] && user['first']) !== null">
-                  NOM PRENOM : {{ user['lastName'] }} {{ user['firstName'] }}
+                  NOM PRENOM : <span class="text-capitalize">{{ user['lastName'] }} {{ user['firstName'] }}</span>
                 </v-list-item-title>
                 <v-list-item-title v-else>
                   NOM PRENOM : 
@@ -79,8 +89,8 @@
 
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title v-if="(user['adress'] || user['secAdress']) !== null">
-                  ADRESSE : {{ user['adress'] }} {{ user['secAdress'] }}
+                <v-list-item-title v-if="(user['adress']) !== null">
+                  ADRESSE : <span class="text-capitalize">{{ user['adress'] }}</span>
                 </v-list-item-title>
                 <v-list-item-title v-else>
                   ADRESSE : 
@@ -90,11 +100,11 @@
 
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title v-if="user['region'] !== null">
-                  REGION : {{ user['region'] }}
+                <v-list-item-title v-if="(user['secAdress']) !== null">
+                  COMPLEMENT D'ADRESSE : <span class="text-capitalize">{{ user['secAdress'] }}</span>
                 </v-list-item-title>
                 <v-list-item-title v-else>
-                  REGION : 
+                  COMPLEMENT D'ADRESSE : 
                 </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
@@ -112,8 +122,19 @@
 
             <v-list-item>
               <v-list-item-content>
+                <v-list-item-title v-if="user['region'] !== null">
+                  REGION : <span class="text-capitalize">{{ user['region'] }}</span>
+                </v-list-item-title>
+                <v-list-item-title v-else>
+                  REGION : 
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-list-item>
+              <v-list-item-content>
                 <v-list-item-title v-if="user['country'] !== null">
-                  PAYS : {{ user['country'] }}
+                  PAYS : <span class="text-capitalize">{{ user['country'] }}</span>
                 </v-list-item-title>
                 <v-list-item-title v-else>
                   PAYS : 
@@ -146,14 +167,26 @@
 
 
         <div class="text-right">
-          <router-link to="/payement-success">
-            <v-btn
-            class="ma-2"
-            color="indigo"
+          
+          <router-link 
+            v-if="isComplete"
+            to="/payement-success"
           >
-            Acheter
-          </v-btn>
+            <v-btn
+              class="ma-2"
+              color="indigo"
+            >
+              Valider la commande
+            </v-btn>
           </router-link>
+
+          <router-link 
+            v-else
+            to="/compte"
+          >
+              Modifier vos information de livraison
+          </router-link>
+          
         </div>
       </div>
   </div>
@@ -193,6 +226,18 @@ import ProductCard from '../components/cards/product';
         userId: null,
         user: [],
         producer: false,
+
+        isComplete: true,
+
+        firstName: null,
+        lastName: null,
+        email: null,
+        phoneNumber: null,
+        adress: null,
+        secAdress: null,
+        postcode: null,
+        region: null,
+        country: null,
       }
     },
 
@@ -200,9 +245,35 @@ import ProductCard from '../components/cards/product';
       
       async initialize() {
         const response = await axios.get("/profile/info");
-        this.user = response.data.user
-      console.log(this.user)
+        this.user = response.data.user;
+
+        this.firstName = response.data.user.firstName;
+        this.lastName = response.data.user.lastName;
+        this.adress = response.data.user.adress;
+        this.secAdress = response.data.user.secAdress;
+        this.postcode = response.data.user.postcode;
+        this.region = response.data.user.region;
+        this.country = response.data.user.country;
+        this.phoneNumber = response.data.user.number;
+
+        this.checkString(
+          this.firstName, 
+          this.lastName, 
+          this.adress, 
+          this.secAdress,
+          this.postcode,
+          this.region,
+          this.country,
+          this.phoneNumber,
+        )
+        
         this.updateCart()
+      },
+
+      checkString(...obj) {
+        if(obj === null || obj === 'null' || obj === undefined) {
+          this.isComplete = false;
+        }
       },
 
       async updateCart() {

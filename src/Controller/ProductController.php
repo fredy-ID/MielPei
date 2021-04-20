@@ -51,6 +51,11 @@ class ProductController extends AbstractController
             ]);
         }
 
+        $producer = $serializer->serialize(
+            $user->getProducerProfile(),
+            'json', ['groups' => ['producer' /* if you add "user_detail" here you get circular reference */]]
+        );
+
         $products = $serializer->serialize(
             $user->getProducerProfile()->getProducts(),
             'json', ['groups' => ['products' /* if you add "user_detail" here you get circular reference */]]
@@ -64,6 +69,7 @@ class ProductController extends AbstractController
         return $this->json([
             'products' => json_decode($products),
             'commands' => json_decode($commands),
+            'producer' => json_decode($producer),
         ]);
     }
 

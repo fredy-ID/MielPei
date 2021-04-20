@@ -96,7 +96,7 @@ class CartController extends AbstractController
         );
 
         if($user === null) {
-            $user_id = $user_lastName = $user_firstName = $user_adress = $user_secAdress = $user_postcode = $user_region = $user_country = $user_phoneNumber = null;
+            $user_id = $user_lastName = $user_firstName = $user_adress = $user_secAdress = $user_postcode = $user_region = $user_country = $user_phoneNumber = $user_email = $user_isVerified = null;
         } else {
             $user_id = $user->getId();
             $user_lastName = $user->getLastName();
@@ -107,6 +107,9 @@ class CartController extends AbstractController
             $user_region = $user->getRegion();
             $user_country = $user->getCountry();
             $user_phoneNumber = $user->getNumber();
+
+            $user_email = $user->getEmail();
+            $user_isVerified = $user->isVerified();
         }
 
         return $this->json([
@@ -120,7 +123,9 @@ class CartController extends AbstractController
             'user_region' => $user_region,
             'user_country' => $user_country,
             'user_phoneNumber' => $user_phoneNumber,
+            'user_email' => $user_email,
             'producer' => $producer,
+            'user_isVerified' => $user_isVerified,
         ]);
     }
 

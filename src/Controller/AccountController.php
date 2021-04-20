@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use Twig\Cache\NullCache;
 use App\Entity\ProducerRequest;
+use App\Repository\ProducerRepository;
 use Symfony\Component\Mime\Address;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
@@ -161,7 +162,7 @@ class AccountController extends AbstractController
     }
 
 
-        /**
+    /**
      * @Route("/send-email", name="send_email")
      */
     public function sendVerificationEmail() {
@@ -213,4 +214,23 @@ class AccountController extends AbstractController
             'success' => 'send email successfull'
         ], 200);
     }
+
+    /**
+     * @Route("/producer/update", name="update_producer")
+     */
+    public function updateProducer(Request $request) {
+        $description = $request->query->get('description');
+
+        $producer = $this->getUser()->getProducerProfile();
+        $producer->setIntroduction($description);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($producer);
+        $entityManager->flush();
+
+        return $this->json([
+            'msg' => 'success',
+        ], 200);
+    }   
+
 }

@@ -11,6 +11,7 @@
 
         <div class="mt-12 ml-12 text-center">
             <h1>Vous êtes producteur ?</h1>
+            <p>En envoyant une demande pour être producteur sur notre plateforme, vous aggréez à nos <u class="text-primary">conditions d'utilisation</u>.</p>
         </div>
 
         <v-card
@@ -23,7 +24,7 @@
             <v-text-field
             v-model="name"
             :error-messages="nameErrors"
-            :counter="35"
+            :counter="10"
             label="NOM Prénom"
             required
             @input="$v.name.$touch()"
@@ -34,7 +35,7 @@
             v-model="description"
             :error-messages="descriptionError"
             :counter="250"
-            label="Présentez-vous et vos productions. Attention ! Ceci servira comme présentation de base dans votre profil Producteur"
+            label="Présentez-vous et vos productions."
             required
             outlined
             @input="$v.description.$touch()"
@@ -45,8 +46,8 @@
             v-model="phoneNumber"
             :type="'number'"
             :error-messages="phoneNumberError"
-            :counter="35"
-            label="Comment pouvons-nous vous joindre ?"
+            :counter="10"
+            label="Téléphone"
             required
             @input="$v.phoneNumber.$touch()"
             @blur="$v.phoneNumber.$touch()"
@@ -111,7 +112,7 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
     mixins: [validationMixin],
 
     validations: {
-      name: { required, maxLength: maxLength(35) },
+      name: { required, maxLength: maxLength(10) },
       description: { required, maxLength: maxLength(250) },
       phoneNumber: { required, maxLength: maxLength(10), minLength: minLength(2) },
     },
@@ -129,6 +130,7 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         text: ``,
         user: null,
         producer: false,
+        admin: false,
       };
     },
 

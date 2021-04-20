@@ -11,25 +11,50 @@
         <!-- <div data-controller="hello"></div>
         <router-link to="/home">My Component</router-link> -->
         
-        <div class="mt-12 ml-12 d-flex">
-          <div class="col-3">
-            <h1>Mes produits</h1>
+        <div class="pa-sm-16">
+          <div class="mb-16">
+            <div class="mb-10">
+                <h2>Introduction</h2>
+            </div>
+            <div>
+              <v-textarea
+                v-model="producerDescription"
+                :error-messages="descriptionError"
+                :counter="250"
+                label="Décrivez votre passion !"
+                solo
+                @keyup="verifyInput()"
+                @input="$v.description.$touch()"
+                @blur="$v.description.$touch()"
+              ></v-textarea>
+              <v-btn
+                v-if="changes"
+                depressed
+                color="primary"
+                @click="updateProducer"
+              >
+                Modifier
+              </v-btn>
+            </div>
           </div>
-          <div class="col-9 d-flex align-center">
+
+
+          <div class="mb-10 d-flex">
+            <div class="mr-5">
+              <h2>Mes produits</h2>
+            </div>
+            
             <router-link :to="{ name: 'product-creation'}">
               <v-btn
-                rounded
                 color="primary"
                 dark
               >
                 Ajouter un produit
               </v-btn>
             </router-link>
-              
           </div>
-        </div>
         
-        <div class="pa-sm-16">
+        
           <v-row>
 
             <v-col
@@ -148,6 +173,24 @@
           </v-row>
         </div>
         
+
+      <v-snackbar
+        v-model="snackbar"
+      >
+        {{ snackbarText }}
+
+        <template v-slot:action="{ attrs }">
+            <v-btn
+            color="pink"
+            text
+            v-bind="attrs"
+            @click="snackbar = false"
+            >
+            Close
+            </v-btn>
+        </template>
+      </v-snackbar>
+
     </div>
 </template>
 
@@ -157,12 +200,22 @@ import AppBar from '../stores/header';
 import ProductCard from '../components/cards/product';
 import moment from 'moment';
 
+import { validationMixin } from 'vuelidate'
+import { required, maxLength } from 'vuelidate/lib/validators'
+
   export default {
     components: {
         AppBar,
         ProductCard,
 
     },
+
+    mixins: [validationMixin],
+
+    validations: {
+      description: { required, maxLength: maxLength(250) },
+    },
+
     data() {
       return{
         activeCommands: [],
@@ -172,6 +225,7 @@ import moment from 'moment';
         nbCommands: 0,
         select: "",
         update: false,
+        changes: false,
         state: [
           "En attente",
           "En cours d'acheminement",
@@ -180,11 +234,24 @@ import moment from 'moment';
         ],
         user: null,
         producer: false,
+        producerDescription: null,
+        initialContent: null,
         admin: false,
+
+        snackbarText: '',
+        snackbar: false,
       };
     },
 
     name: "Home",
+
+    computed: {
+      descriptionError () {
+        const errors = []
+        if (!this.$v.description.$dirty) return errors
+        !this.$v.description.maxLength && errors.push('La description ne devrait pas exéder les 250 caractères maximum')
+      },
+    },
 
     methods: {
 
@@ -221,9 +288,31 @@ import moment from 'moment';
           
           this.totalPrice = this.totalPrice + element.total;
         });
-        console.log(this.activeCommands)
-        console.log(this.oldCommands)
+
+        this.producerDescription = response.data.producer.introduction;
+        this.initialContent = this.producerDescription;
+
         this.updateCart()
+      },
+
+      async updateProducer() {
+        const response = await axios.get("/producer/update", {
+          params: {
+            description: this.producerDescription
+          }
+        }).catch((error) => {
+          console.log(error)
+        });
+
+        console.log(response.data.d)
+        
+        if(response.data.msg === "success") {
+          this.snackbarText = "Introduction mis à jour";
+          this.snackbar = true;
+          this.initialContent = this.producerDescription;
+        }
+        
+        this.changes = false;
       },
 
       async updateCart() {
@@ -236,6 +325,17 @@ import moment from 'moment';
         this.producer = response.data.producer;
             
       },
+
+      verifyInput() {
+        if((this.producerDescription === this.initialContent)) {
+
+          this.changes = false;
+          
+        } else {
+          this.changes = true;
+        }
+
+      }
 
     },
 
