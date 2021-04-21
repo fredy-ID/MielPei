@@ -75,6 +75,7 @@ class CommandController extends AbstractController
         $entityManager = $this->getDoctrine()->getManager();
         $total_price = 0;
         $nb_articles = 0;
+
         foreach($cartProducts as $article) {
             $product_owner = $article->getProduct()->getOwner();
             $product = $article->getProduct();
@@ -112,11 +113,10 @@ class CommandController extends AbstractController
         
         $knpSnappyPdf->generateFromHtml(
             $this->renderView('command/invoice/invoice.html.twig', [
-                'cartProducts' => $cartProducts,
+                'cartProducts' => $cart->getCartProducts(),
             ]),
             $this->invoiceFilesDirectory . '/public/invoices/'. $fileName
         );
-
 
         $entityManager->flush();
 
@@ -125,6 +125,7 @@ class CommandController extends AbstractController
             'file' => '/invoices/public/invoices/'. $fileName,
             'montant' => $total_price,
             'nbArticles' => $nb_articles,
+            'cartProducts' => $cart->getCartProducts(),
         ]);
         
     }

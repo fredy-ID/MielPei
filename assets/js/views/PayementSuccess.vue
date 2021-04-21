@@ -75,10 +75,10 @@ import ProductCard from '../components/cards/product';
 
       async updateCart() {
           const command = await axios.get("/command/new");
-          console.log(command.data.file)
           this.file_path = command.data.file;
           this.total = command.data.montant;
           this.nbArticles = command.data.nbArticles;
+          var cartProducts = command.data.cartProducts;
 
           const response = await axios.get("/cart/all/commands");
           if(response.data.cart.length > 0) {

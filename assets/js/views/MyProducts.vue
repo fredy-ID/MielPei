@@ -275,7 +275,6 @@ import { required, maxLength } from 'vuelidate/lib/validators'
         const response = await axios.get("/product/iventaire");
 
         var commands = response.data.commands;
-        console.log(response)
         response.data.products.forEach(product => {
           this.products.push(product)
         });
@@ -306,8 +305,6 @@ import { required, maxLength } from 'vuelidate/lib/validators'
         }).catch((error) => {
           console.log(error)
         });
-
-        console.log(response.data.d)
         
         if(response.data.msg === "success") {
           this.snackbarText = "Introduction mis à jour";

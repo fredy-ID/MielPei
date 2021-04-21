@@ -121,7 +121,6 @@ import ProductCard from '../components/cards/product';
 
       async updateCart() {
         const response = await axios.get("/cart/all/commands");
-        console.log(response.data)
         if(response.data.cart.length > 0) {
           var cart = response.data.cart[0].cartProducts;
           this.nbCommands = cart

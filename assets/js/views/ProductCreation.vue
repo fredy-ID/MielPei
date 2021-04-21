@@ -197,7 +197,6 @@ import { required, maxLength } from 'vuelidate/lib/validators'
         });
 
         this.text = msg;
-        console.log(msg)
         this.snackbar = true;
 
 

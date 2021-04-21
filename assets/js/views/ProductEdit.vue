@@ -173,7 +173,6 @@ import { required, maxLength } from 'vuelidate/lib/validators'
         const productId = this.$router.currentRoute.params.id;
         const response = await axios.get("/product/"+productId);
         var product = response.data.product;
-        console.log(response.data.product)
 
         this.id = product.id
         this.name = product.name

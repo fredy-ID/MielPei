@@ -182,7 +182,6 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         this.$v.$touch()
 
         const response = await axios.post('/account/producer-request/' + this.name + '/' + this.description+ '/' + this.phoneNumber);
-        console.log(response);
 
         if(response.data.success || response.data.requestExists) {
           this.text = response.data.msg;

@@ -464,7 +464,6 @@ import ProductCard from '../components/cards/product';
         var isAdmin = this.selectedUserisAdmin;
         var isProducer =this.selectedUserisProducer;
 
-        console.log(isAdmin)
         if((!isAdmin && isProducer)){
           const response = await axios.get(`/users/${userId}/role/${0}`);
           this.text = response.data.msg;

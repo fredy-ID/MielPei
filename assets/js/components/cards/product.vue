@@ -50,7 +50,6 @@
         <v-btn
           color="deep-purple lighten-2"
           text
-          outlined
         >
           Consulter
         </v-btn>

@@ -298,7 +298,6 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
           this.user = response.data.user;
           this.producer = response.data.producer;
 
-          console.log(response)
 
           this.firstName = response.data.user_firstName;
           this.lastName = response.data.user_lastName;
@@ -342,10 +341,8 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
             return true;
         })
         .catch(function (error) {
-            console.log("Une erreur est survenue", error);
             return false
         });
-        console.log(response)
 
         this.text = result;
         this.snackbar = true;

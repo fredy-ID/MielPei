@@ -99,8 +99,6 @@ import ProductCard from '../components/cards/product';
         
         this.updateCart()
         this.product = response.data.product;
-
-        console.log(this.product)
       },
 
       async updateCart() {
