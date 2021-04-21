@@ -8,7 +8,7 @@
           :admin="admin"
         />
 
-        <v-sheet
+        <!-- <v-sheet
           class="mx-auto ma-16"
           elevation="8"
           max-width="800"
@@ -65,7 +65,7 @@
               </v-row>
             </v-sheet>
           </v-expand-transition>
-        </v-sheet>
+        </v-sheet> -->
 
         <!-- <div data-controller="hello"></div>
         <router-link to="/home">My Component</router-link> -->
@@ -78,6 +78,7 @@
             :action="'achat'"
             :user="user"
             @update-cart="updateCart"
+            :privileges="privileges"
            />
         </div>
     </div>
@@ -94,14 +95,14 @@ import ProductCard from '../components/cards/product';
         ProductCard,
     },
     data() {
-      return{
+      return {
         products: [],
         nbCommands: 0,
         user: null,
         producer: false,
         admin: false,
+        privileges: false,
       };
-      
     },
 
     name: "Home",
@@ -119,17 +120,15 @@ import ProductCard from '../components/cards/product';
       },
 
       async updateCart() {
-          const response = await axios.get("/cart/all/commands");
-          console.log(response.data)
-          if(response.data.cart.length > 0) {
-            var cart = response.data.cart[0].cartProducts;
-            this.nbCommands = cart
-          }
-            this.user = response.data.user;
-            this.producer = response.data.producer;
+        const response = await axios.get("/cart/all/commands");
+        console.log(response.data)
+        if(response.data.cart.length > 0) {
+          var cart = response.data.cart[0].cartProducts;
+          this.nbCommands = cart
+        }
+        this.user = response.data.user;
+        this.producer = response.data.producer;
       },
-      
-
     },
 
     created() {

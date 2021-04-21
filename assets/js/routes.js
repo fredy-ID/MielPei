@@ -6,6 +6,7 @@ import Admin from './views/Admin';
 import MyProducts from './views/MyProducts';
 import Producer from './views/Producer';
 import PInfo from './views/ProductInformations';
+import PEdit from './views/ProductEdit';
 import PCreate from './views/ProductCreation';
 import ProducerRequest from './views/ProducerRequest';
 import PayementSuccess from './views/PayementSuccess';
@@ -23,8 +24,9 @@ const router = new VueRouter({
     {path:'/', name:'home', component:Home},
     {path:'/admin', name:'admin', component:Admin},
     {path:'/producer/products', name:'my-products', component:MyProducts},
-    {path:'/producer', name:'producer', component:Producer},
+    {path:'/producer/:id', name:'producer', component:Producer},
     {path:'/product/products/:id', name:'product-info', component:PInfo},
+    {path:'/product/edit/:id', name:'product-edit', component:PEdit},
     {path:'/product/new', name:'product-creation', component:PCreate},
     {path:'/compte', name:'profile', component:Profile},
     {path:'/producer/request', name:'producer-request', component:ProducerRequest},

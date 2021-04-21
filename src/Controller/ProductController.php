@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Form\ProductType;
+use App\Repository\CommandRepository;
 use App\Repository\ProductRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -94,6 +95,7 @@ class ProductController extends AbstractController
         $product->setDescription($description);
         $product->setProductionArea($_AREA_PROD);
         $product->setPrice($price);
+        $product->setIsActive(false);
 
         $errors = $validator->validate($product);
         
@@ -122,6 +124,59 @@ class ProductController extends AbstractController
        
     }
 
+
+    /**
+     * @Route("/update/{id}", name="product_update", methods={"GET"})
+     */
+    public function update(Request $request, ValidatorInterface $validator, ProductRepository $productRepository, $id): Response
+    {
+        $description = $request->query->get('description');
+        $name = $request->query->get('name');
+        $price = $request->query->get('price');
+
+        if(($name == '' || intval($price) < 0) || $name === null) return $this->json([
+            'erreur' => 'Valeurs incorrectes',
+            'msg' => 'Valeurs incorrectes',
+            $request->query,
+            $name,
+            $description,
+            $price,
+        ]);
+
+
+        $product = $productRepository->find($id);
+
+        $product->setName($name);
+        $product->setDescription($description);
+        $product->setPrice(intval($price));
+
+        $errors = $validator->validate($product);
+        
+        if (count($errors) > 0) {
+            /*
+             * Uses a __toString method on the $errors variable which is a
+             * ConstraintViolationList object. This gives us a nice string
+             * for debugging.
+             */
+            $errorsString = (string) $errors;
+
+            return $this->json([
+                'erreur' => $errorsString,
+                'msg' => "Erreur lors de l'enregistrement du produit"
+            ]);
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($product);
+        $entityManager->flush();
+
+        return $this->json([
+            'succès' => 'Enregistré avec succès',
+            'msg' => "Produit modifié avec succès"
+        ]);
+       
+    }
+
     /**
      * @Route("/{id}", name="product_show", methods={"GET"})
      */
@@ -134,42 +189,77 @@ class ProductController extends AbstractController
             'json', ['groups' => ['products', 'producer' /* if you add "user_detail" here you get circular reference */]]
         );
 
+        $owner = $serializer->serialize(
+            $product_object->getOwner(),
+            'json', ['groups' => ['producer' /* if you add "user_detail" here you get circular reference */]]
+        );
+
         return $this->json([
             'product' => json_decode($product),
+            'owner' => json_decode($owner),
         ]);
     }
 
     /**
-     * @Route("/{id}/edit", name="product_edit", methods={"GET","POST"})
+     * @Route("/desactivate/{id}", name="product_desactivate", methods={"GET","POST"})
      */
-    public function edit(Request $request, Product $product): Response
+    public function desactivate($id, ProductRepository $productRepository): Response
     {
-        $form = $this->createForm(ProductType::class, $product);
-        $form->handleRequest($request);
+        $product = $productRepository->findOneBy(['owner' => $this->getUser()->getProducerProfile(), 'id' => $id]);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+        $product->setIsActive(false);
 
-            return $this->redirectToRoute('product_index');
-        }
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($product);
+        $entityManager->flush();
 
-        return $this->render('product/edit.html.twig', [
-            'product' => $product,
-            'form' => $form->createView(),
+        return $this->json([
+            'message' => "success",
+            'msg' => 'Le produit a bien été désactivé',
         ]);
     }
 
     /**
-     * @Route("/{id}/delete", name="product_delete", methods={"DELETE"})
+     * @Route("/activate/{id}", name="product_activate", methods={"GET","POST"})
      */
-    public function delete(Request $request, Product $product): Response
+    public function activate($id, ProductRepository $productRepository): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$product->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($product);
-            $entityManager->flush();
+        $product = $productRepository->findOneBy(['owner' => $this->getUser()->getProducerProfile(), 'id' => $id]);
+
+        $product->setIsActive(true);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($product);
+        $entityManager->flush();
+
+        return $this->json([
+            'message' => "success",
+            'msg' => 'Le produit a bien été activé',
+        ]);
+    }
+
+    /**
+     * @Route("/delete/{id}", name="product_delete", methods={"GET","POST"})
+     */
+    public function delete($id, ProductRepository $productRepository, CommandRepository $commandRepository): Response
+    {
+        $product = $productRepository->findOneBy(['owner' => $this->getUser()->getProducerProfile(), 'id' => $id]);
+        $commands = $commandRepository->findBy(['product' => $product]);
+
+        if(count($commands) > 0) {
+            return $this->json([
+                'message' => "success",
+                'msg' => 'Votre requête ne peut être réalisé car un ou plusieurs commandes ont déjà été réalisés pour ce produit. Essayer de le désactiver à la place.',
+            ]);
         }
 
-        return $this->redirectToRoute('product_index');
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($product);
+        $entityManager->flush();
+
+        return $this->json([
+            'message' => "success",
+            'msg' => 'Le produit a bien été supprimé',
+        ]);
     }
 }

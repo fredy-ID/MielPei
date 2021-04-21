@@ -18,7 +18,8 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 class User implements UserInterface
 {
     /**
-     * @Groups({"user", "admin"})
+     * 
+     * @Groups({"user", "admin", "producer"})
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -26,7 +27,7 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @Groups({"user", "admin"})
+     * @Groups({"user", "admin", "producer"})
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(
      *      min = 2,
@@ -40,7 +41,7 @@ class User implements UserInterface
     private $firstName;
 
     /**
-     * @Groups({"user", "admin"})
+     * @Groups({"user", "admin", "producer"})
      * @ORM\Column(type="string", length=255)
      * @Assert\Length(
      *      min = 1,

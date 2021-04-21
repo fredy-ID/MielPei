@@ -10,8 +10,7 @@
 
 
         <div class="mt-12 ml-12 text-center">
-            <h1>Vous êtes producteur ?</h1>
-            <p>En envoyant une demande pour être producteur sur notre plateforme, vous aggréez à nos <u class="text-primary">conditions d'utilisation</u>.</p>
+            <h1>Ajouter un produit</h1>
         </div>
 
         <v-card
@@ -20,12 +19,11 @@
         >
 
         <form>
-
             <v-text-field
             v-model="name"
             :error-messages="nameErrors"
-            :counter="10"
-            label="NOM Prénom"
+            :counter="35"
+            label="Nom du produit"
             required
             @input="$v.name.$touch()"
             @blur="$v.name.$touch()"
@@ -35,7 +33,7 @@
             v-model="description"
             :error-messages="descriptionError"
             :counter="250"
-            label="Présentez-vous et vos productions."
+            label="Description"
             required
             outlined
             @input="$v.description.$touch()"
@@ -43,24 +41,32 @@
             ></v-textarea>
 
             <v-text-field
-            v-model="phoneNumber"
-            :type="'number'"
-            :error-messages="phoneNumberError"
-            :counter="10"
-            label="Téléphone"
+            v-model="price"
+            type="number"
+            :error-messages="priceErrors"
+            label="Prix"
             required
-            @input="$v.phoneNumber.$touch()"
-            @blur="$v.phoneNumber.$touch()"
+            @input="$v.price.$touch()"
+            @blur="$v.price.$touch()"
+            prepend-icon="mdi-currency-eur"
             ></v-text-field>
+
+            <v-file-input
+                :rules="rules"
+                accept="image/png, image/jpeg"
+                placeholder="Sélectionnez une photo"
+                prepend-icon="mdi-camera"
+                label="Photo"
+            ></v-file-input>
 
             <v-btn
             class="mr-4"
             @click="submit"
             >
-                Envoyer
+                Sauvegarder
             </v-btn>
-            <router-link :to="{ name: 'home'}">
-              <v-btn @click="clear">
+            <router-link :to="{ name: 'my-products'}">
+              <v-btn>
                 Annuler
             </v-btn>
             </router-link>
@@ -100,7 +106,7 @@ import AppBar from '../stores/header';
 import ProductCard from '../components/cards/product';
 
 import { validationMixin } from 'vuelidate'
-import { required, maxLength, minLength } from 'vuelidate/lib/validators'
+import { required, maxLength } from 'vuelidate/lib/validators'
 
   export default {
 
@@ -112,9 +118,9 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
     mixins: [validationMixin],
 
     validations: {
-      name: { required, maxLength: maxLength(10) },
+      name: { required, maxLength: maxLength(35) },
       description: { required, maxLength: maxLength(250) },
-      phoneNumber: { required, maxLength: maxLength(10), minLength: minLength(2) },
+      price: { required },
     },
 
     data() {
@@ -122,12 +128,13 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         nbCommands: 0,
         name: '',
         description: '',
-        phoneNumber: '',
+        price: 0,
         rules: [
             value => !value || value.size < 5000000 || "L'image ne doit pas éxéder 5MB!",
         ],
         snackbar: false,
         text: ``,
+        id: null,
         user: null,
         producer: false,
         admin: false,
@@ -151,12 +158,10 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
         !this.$v.name.required && errors.push('Le nom est requis')
         return errors
       },
-      phoneNumberError() {
+      priceErrors () {
         const errors = []
-        if (!this.$v.phoneNumber.$dirty) return errors
-        !this.$v.phoneNumber.maxLength && errors.push('Entrez un numéro de téléphone correct')
-        !this.$v.phoneNumber.minLength && errors.push('Entrez un numéro de téléphone correct')
-        !this.$v.phoneNumber.required && errors.push('Le numéro de téléphone est requis')
+        if (!this.$v.price.$dirty) return errors
+        !this.$v.price.required && errors.push('Vous devez indiquer le prix pour le produit')
         return errors
       },
       
@@ -165,6 +170,16 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
     methods: {
       
       async initialize() {
+        const productId = this.$router.currentRoute.params.id;
+        const response = await axios.get("/product/"+productId);
+        var product = response.data.product;
+        console.log(response.data.product)
+
+        this.id = product.id
+        this.name = product.name
+        this.description = product.description
+        this.price = product.price
+
         this.updateCart()
       },
 
@@ -181,26 +196,19 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
       async submit () {
         this.$v.$touch()
 
-        const response = await axios.post('/account/producer-request/' + this.name + '/' + this.description+ '/' + this.phoneNumber);
-        console.log(response);
+        const response = await axios.get("/product/update/"+ this.id , {
+          params: {
+            name: this.name,
+            description: this.description,
+            price: this.price
+          }
+        }).catch((error) => {
+          console.log(error)
+        });
 
-        if(response.data.success || response.data.requestExists) {
-          this.text = response.data.msg;
-          this.snackbar = true;
-        } else {
-          this.text = "Une erreur est survenue";
-          this.snackbar = true;
-        }
+        this.text = response.data.msg;
+        this.snackbar = true;
 
-
-        this.name = ''
-        this.description = ''
-        this.phoneNumber = ''
-      },
-      clear () {
-        this.$v.$reset()
-        this.name = ''
-        this.description = ''
       },
 
     },

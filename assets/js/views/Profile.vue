@@ -282,11 +282,11 @@ import { required, maxLength, minLength } from 'vuelidate/lib/validators'
     methods: {
 
       async initialize() {
-        const productId = this.$router.currentRoute.params.id;
-        const response = await axios.get("/product/" + productId);
+        // const productId = this.$router.currentRoute.params.id;
+        // const response = await axios.get("/profile/info");
         
         this.updateCart()
-        this.product = response.data.product;
+        // this.product = response.data.product;
       },
 
       async updateCart() {

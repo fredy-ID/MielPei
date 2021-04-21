@@ -24,7 +24,10 @@
 
             <div class="mt-12">
               <h2>Producteur</h2>
-
+              <router-link :to="{ name: 'producer/' +owner.user.id, params: { id: product['id'] }}">
+                  {{owner.user.firstName}} {{owner.user.lastName}}
+              </router-link>
+              <p></p>
 
             </div>
 
@@ -95,6 +98,8 @@ import ProductCard from '../components/cards/product';
         user: null,
         producer: false,
         admin: false,
+
+        owner: null,
       };
       
     },
@@ -111,8 +116,7 @@ import ProductCard from '../components/cards/product';
         
         this.updateCart()
         this.product = response.data.product;
-
-        console.log(this.product)
+        this.owner = response.data.owner;
       },
 
       async updateCart() {

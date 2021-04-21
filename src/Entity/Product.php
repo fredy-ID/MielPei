@@ -68,6 +68,12 @@ class Product
      */
     private $owner;
 
+    /**
+     * @Groups("products")
+     * @ORM\Column(type="boolean")
+     */
+    private $isActive;
+
     public function __construct()
     {
         $this->commands = new ArrayCollection();
@@ -189,6 +195,18 @@ class Product
     public function setOwner(?Producer $owner): self
     {
         $this->owner = $owner;
+
+        return $this;
+    }
+
+    public function getIsActive(): ?bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): self
+    {
+        $this->isActive = $isActive;
 
         return $this;
     }

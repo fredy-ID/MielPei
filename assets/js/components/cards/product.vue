@@ -50,10 +50,53 @@
         <v-btn
           color="deep-purple lighten-2"
           text
+          outlined
         >
           Consulter
         </v-btn>
       </router-link>
+
+      <div v-if="privileges">
+        <router-link :to="{ name: 'product-edit', params: { id: product['id'] }}">
+          <v-btn
+            color="deep-purple lighten-2"
+            text
+            outlined
+          >
+            Modifier
+          </v-btn>
+        </router-link>
+        <div>
+          <v-btn
+          v-if="product['isActive'] === true"
+            color="error"
+            outlined
+            text
+            @click="desactivate(product['id'])"
+          >
+            Désactiver
+          </v-btn>
+          <v-btn
+            v-else
+            color="error"
+            outlined
+            text
+            @click="activate(product['id'])"
+          >
+            Activer
+          </v-btn>
+        </div>
+        <div>
+          <v-btn
+            color="error"
+            text
+            outlined
+            @click="remove(product['id'])"
+          >
+            Supprimer
+          </v-btn>
+        </div>
+      </div>
 
       <v-form v-model="valid" v-if="action == 'achat'">
         <v-container>
@@ -85,7 +128,7 @@ const axios = require('axios');
       ],
     }),
 
-    props: ["product", "action", "user"],
+    props: ["product", "action", "user", "privileges"],
 
     methods: {
       reserve () {
@@ -94,15 +137,43 @@ const axios = require('axios');
         setTimeout(() => (this.loading = false), 2000)
       },
       async reserve(productId) {
-            this.loading = true;
-            // /new/product/{id}/quantity/{quantity}
-            const response = await axios.get("/cart/new/product/" + productId + '/quantity/' + this.quantity).then(() => {
-                this.$emit('update-cart')
-                this.loading = false
-            } );
-
-
+        this.loading = true;
+        // /new/product/{id}/quantity/{quantity}
+        const response = await axios.get("/cart/new/product/" + productId + '/quantity/' + this.quantity).then(() => {
+            this.$emit('update-cart')
+            this.loading = false
+        } );
       },
+
+      async desactivate(productId) {
+        this.loading = true;
+        // /new/product/{id}/quantity/{quantity}
+        const response = await axios.get("/product/desactivate/" + productId).then(() => {
+            this.$emit('update-state')
+            this.loading = false
+        });
+      },
+
+      async activate(productId) {
+        this.loading = true;
+        // /new/product/{id}/quantity/{quantity}
+        const response = await axios.get("/product/activate/" + productId).then(() => {
+            this.$emit('update-state')
+            this.loading = false
+        });
+      },
+
+      async remove(productId) {
+        this.loading = true;
+        // /new/product/{id}/quantity/{quantity}
+        console.log(productId)
+        const response = await axios.get("/product/delete/"+productId).then(() => {
+            this.$emit('update-state')
+            this.loading = false
+        });
+        console.log(response)
+      },
+
       test(a) {
           console.log(a)
       }

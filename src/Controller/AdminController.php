@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\ProducerRequestRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,13 +14,19 @@ class AdminController extends AbstractController
     /**
      * @Route("/users", name="admin")
      */
-    public function index(UserRepository $userRepository, SerializerInterface $serializer): Response
+    public function index(UserRepository $userRepository, ProducerRequestRepository $producerRequestRepository, SerializerInterface $serializer): Response
     {
         $users_data = $userRepository->findAll();
+        $producer_requests_data = $producerRequestRepository->findAll();
 
         $users = $serializer->serialize(
             $users_data,
             'json', ['groups' => ['admin' /* if you add "user_detail" here you get circular reference */]]
+        );
+
+        $producer_requests = $serializer->serialize(
+            $producer_requests_data,
+            'json', ['groups' => ['producer_request','admin' /* if you add "user_detail" here you get circular reference */]]
         );
 
         // if($user === null || $user->getAdmin() === null) {
@@ -30,6 +37,7 @@ class AdminController extends AbstractController
 
         return $this->json([
             'users' => json_decode($users),
+            'producerRequests' => json_decode($producer_requests),
         ]);
     }
 
@@ -53,6 +61,7 @@ class AdminController extends AbstractController
         
         return $this->json([
             'message' => "success",
+            'msg' => "Role utilisateur modifié avec success",
         ], 200);
     }
 
@@ -74,6 +83,59 @@ class AdminController extends AbstractController
         
         return $this->json([
             'message' => "success",
+        ], 200);
+    }
+
+    /**
+     * @Route("/users/remove/producer-request/{producerRequestId}", name="admin_remove_producer_request")
+     */
+    public function removeProducerRequest(ProducerRequestRepository $producerRequestRepository, $producerRequestId) {
+        $request = $producerRequestRepository->find($producerRequestId);
+
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($request);
+        $entityManager->flush();
+        
+        return $this->json([
+            'message' => "success",
+            'msg' => "La requête a été acceptée, l'utilisateur est maintenant Producteur",
+        ], 200);
+    }
+
+    /**
+     * @Route("/users/refuse/producer-request/{producerRequestId}", name="admin_refuse_producer_request")
+     */
+    public function refuseProducerRequest(ProducerRequestRepository $producerRequestRepository, $producerRequestId) {
+        $request = $producerRequestRepository->find($producerRequestId);
+        
+        $request->setState('Refusée');
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($request);
+        $entityManager->flush();
+        
+        return $this->json([
+            'message' => "success",
+            'msg' => "La requête été refusée. L'utilisateur ne pourra plus envoyer de nouvelle requête",
+        ], 200);
+    }
+
+    /**
+     * @Route("/users/activate/producer-request/{producerRequestId}", name="admin_activate_producer_request")
+     */
+    public function activateProducerRequest(ProducerRequestRepository $producerRequestRepository, $producerRequestId) {
+        $request = $producerRequestRepository->find($producerRequestId);
+        
+        $request->setState('En attente');
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($request);
+        $entityManager->flush();
+        
+        return $this->json([
+            'message' => "success",
+            'msg' => "La requête est à nouveau en attente de validation",
         ], 200);
     }
 }

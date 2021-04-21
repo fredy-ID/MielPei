@@ -6,6 +6,7 @@ use App\Entity\User;
 use Twig\Cache\NullCache;
 use App\Entity\ProducerRequest;
 use App\Repository\ProducerRepository;
+use App\Repository\ProducerRequestRepository;
 use Symfony\Component\Mime\Address;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
@@ -89,16 +90,20 @@ class AccountController extends AbstractController
     /**
      * @Route("/account/producer-request/{name}/{description}/{phoneNumber}", name="producer-request_new", methods={"POST"})
      */
-    public function new(ValidatorInterface $validator, $name, $description, $phoneNumber, Request $request): Response
+    public function new(ValidatorInterface $validator, $name, $description, $phoneNumber, ProducerRequestRepository $producerRequestRepository): Response
     {
-
-        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['email' => 'freddaou@hormail.fr']);
-        dump('fd');
         
         if(($name == '' || $phoneNumber == '') || $name === null) return $this->json([
             'erreur' => 'Valeurs incorrectes',
             'msg' => 'Valeurs incorrectes'
         ]);
+        
+        if($producerRequestRepository->findOneBy(["user" => $this->getUser()]) != null) {
+            return $this->json([
+                'requestExists' => 'La requête existe',
+                'msg' => "Vous avez déjà formulé une demande."
+            ]);
+        }
 
         $_INITIAL_STATE = 'En attente';
 
@@ -155,7 +160,7 @@ class AccountController extends AbstractController
 
 
         return $this->json([
-            'succès' => 'Enregistré avec succès',
+            'success' => 'Enregistré avec succès',
             'msg' => "La requête a été envoyé avec succès"
         ]);
        

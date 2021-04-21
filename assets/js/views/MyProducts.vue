@@ -69,6 +69,8 @@
                   :product="product"
                   :action="'mes-produits'"
                   @update-cart="updateCart"
+                  @update-state="initialize"
+                  :privileges="privileges"
                 />
               </div>
             </v-col>
@@ -237,6 +239,7 @@ import { required, maxLength } from 'vuelidate/lib/validators'
         producerDescription: null,
         initialContent: null,
         admin: false,
+        privileges: false,
 
         snackbarText: '',
         snackbar: false,
@@ -323,7 +326,7 @@ import { required, maxLength } from 'vuelidate/lib/validators'
         }
         this.user = response.data.user;
         this.producer = response.data.producer;
-            
+        this.privileges = this.producer;
       },
 
       verifyInput() {

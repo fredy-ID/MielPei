@@ -22,6 +22,7 @@ class Producer
     private $id;
 
     /**
+     * @Groups("producer")
      * @ORM\OneToOne(targetEntity=User::class, inversedBy="producerProfile", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=false)
      */

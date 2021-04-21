@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\ProducerRequestRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=ProducerRequestRepository::class)
@@ -11,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 class ProducerRequest
 {
     /**
+     * @Groups("producer_request")
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
@@ -18,27 +20,32 @@ class ProducerRequest
     private $id;
 
     /**
+     * @Groups("producer_request")
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
+     * @Groups("producer_request")
      * @ORM\Column(type="text")
      */
     private $description;
 
     /**
+     * @Groups("producer_request")
      * @ORM\Column(type="integer")
      */
     private $phoneNumber;
 
     /**
+     * @Groups("producer_request")
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="producerRequests")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
 
     /**
+     * @Groups("producer_request")
      * @ORM\Column(type="string", length=255)
      */
     private $state;

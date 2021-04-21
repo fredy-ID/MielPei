@@ -101,6 +101,7 @@
                       </v-btn>
                       <v-btn
                         color="blue darken-1"
+                        :disabled="!btnActive"
                         text
                         @click="modifyUserRole"
                       >
@@ -115,7 +116,7 @@
                     <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                      <v-btn color="blue darken-1" text @click="desactivate(editedItem.id)">OK</v-btn>
+                      <v-btn color="blue darken-1" :disabled="!btnActive" text @click="desactivate(editedItem.id)">OK</v-btn>
                       <v-spacer></v-spacer>
                     </v-card-actions>
                   </v-card>
@@ -148,7 +149,125 @@
 
           </v-data-table>
 
+          <div class="mt-16">
+            <div class="mb-10">
+                <h2>Requêtes Producteurs</h2>
+            </div>
+              <v-expansion-panels class="px-sm-16" v-if="producerRequests.length > 0">
+                <v-expansion-panel
+                  @click="editItem(request.user, true)"
+                  v-for="request in producerRequests"
+                  :key="request.id"
+                >
+                  <v-expansion-panel-header class="d-flex flex-column">
+                    <p><b>Utilisateur :</b> <span class="text-uppercase">{{request.user.lastName}}</span> {{request.user.firstName}} (ID : {{request.user.id}})</p>
+                    <p><b>Email :</b> {{request.user.email}}</p>
+                    <p><b>Etat de Compte :</b> {{request.user.isActive === true ? 'Actif' : 'Inactif'}}</p>
+                    <p><b>Numéro de téléphone associé au compte :</b> {{request.user.number}}</p>
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <p><b>NOM Prénom :</b> {{request.name}}</p>
+                    <p><b>Description :</b> {{request.description}}</p>
+                    <p><b>Numéro de téléphone fournie :</b> {{request.phoneNumber}}</p>
+
+                    <v-container fluid>
+                      <v-switch
+                        v-model="switch2"
+                        @change="updateRoles(request.user.id, request.user.roles, true, request.id)"
+                        color="primary"
+                        label="Producteur"
+                        :loading="switchLoading"
+                        :inset="true"
+                      ></v-switch>
+                      <v-btn
+                        depressed
+                        color="error"
+                        :disabled="!btnActive"
+                        @click="refuseRequest(request.id)"
+                      >
+                        Refuser
+                      </v-btn>
+                      <v-btn
+                        depressed
+                        outlined
+                        color="error"
+                        :disabled="!btnActive"
+                        @click="deleteRequest(request.id)"
+                      >
+                        Supprimer
+                      </v-btn>
+                    </v-container>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+              </v-expansion-panels>
+              <p v-else>Aucune requête pour le moment</p>
+          </div>
+
+
+          <div class="mt-16">
+            <div class="mb-10">
+                <h2>Requêtes Refusées</h2>
+            </div>
+              <v-expansion-panels class="px-sm-16" v-if="refusedProducerRequests.length > 0">
+                <v-expansion-panel
+                  @click="editItem(request.user, true)"
+                  v-for="request in refusedProducerRequests"
+                  :key="request.id"
+                >
+                  <v-expansion-panel-header class="d-flex flex-column">
+                    <p><b>Utilisateur :</b> <span class="text-uppercase">{{request.user.lastName}}</span> {{request.user.firstName}} (ID : {{request.user.id}})</p>
+                    <p><b>Email :</b> {{request.user.email}}</p>
+                    <p><b>Etat de Compte :</b> {{request.user.isActive === true ? 'Actif' : 'Inactif'}}</p>
+                    <p><b>Numéro de téléphone associé au compte :</b> {{request.user.number}}</p>
+                  </v-expansion-panel-header>
+                  <v-expansion-panel-content>
+                    <p><b>NOM Prénom :</b> {{request.name}}</p>
+                    <p><b>Description :</b> {{request.description}}</p>
+                    <p><b>Numéro de téléphone fournie :</b> {{request.phoneNumber}}</p>
+
+                    <v-container fluid>
+                      <v-btn
+                        depressed
+                        color="primary"
+                        :disabled="!btnActive"
+                        @click="activateRequest(request.id)"
+                      >
+                        Réactiver
+                      </v-btn>
+                      <v-btn
+                        depressed
+                        outlined
+                        color="error"
+                        :disabled="!btnActive"
+                        @click="deleteRequest(request.id)"
+                      >
+                        Supprimer
+                      </v-btn>
+                    </v-container>
+                  </v-expansion-panel-content>
+                </v-expansion-panel>
+              </v-expansion-panels>
+              <p v-else>Aucune requête pour le moment</p>
+          </div>
+
       </div>
+
+      <v-snackbar
+            v-model="snackbar"
+            >
+            {{ text }}
+
+            <template v-slot:action="{ attrs }">
+                <v-btn
+                color="pink"
+                text
+                v-bind="attrs"
+                @click="snackbar = false"
+                >
+                Close
+                </v-btn>
+            </template>
+        </v-snackbar>
   </div>
 
 </template>
@@ -167,6 +286,7 @@ import ProductCard from '../components/cards/product';
       return {
       dialog: false,
       dialogDelete: false,
+      btnActive: true,
 
       // To verify
       desserts: [],
@@ -187,8 +307,12 @@ import ProductCard from '../components/cards/product';
       },
 
       switch1: false,
+      switch2: false,
       isProducer: "",
       switchLoading: false,
+
+      snackbar: false,
+      text: '',
 
       // Original
         headers: [
@@ -214,6 +338,8 @@ import ProductCard from '../components/cards/product';
         userId: null,
         user: [],
         users: [],
+        producerRequests: [],
+        refusedProducerRequests: [],
         producer: false,
 
         selectedUserId : null, 
@@ -244,9 +370,20 @@ import ProductCard from '../components/cards/product';
     methods: {
       
       async initialize() {
+        this.btnActive = false;
         const response = await axios.get("/users");
         var users = response.data.users
-        console.log(users) 
+
+        this.refusedProducerRequests = []
+        this.producerRequests = []
+        response.data.producerRequests.forEach(request => {
+          if(request.state === "En attente") {
+            this.producerRequests.push(request)
+          } else if(request.state === "Refusée") {
+            this.refusedProducerRequests.push(request)
+          }
+        })
+
 
         this.users = [];
         users.forEach(element => {
@@ -261,9 +398,9 @@ import ProductCard from '../components/cards/product';
           }
           this.users.push(user);
         })
-        console.log(this.users)
 
         this.updateCart()
+        this.btnActive = true;
       },
 
       async updateCart() {
@@ -295,8 +432,7 @@ import ProductCard from '../components/cards/product';
     
 
 
-      updateRoles(userId, roles) {
-        console.log(roles)
+      updateRoles(userId, roles, swtich2 = false, producerRequestId = null) {
         var isProducer = false;
         var isAdmin = false;
 
@@ -315,46 +451,100 @@ import ProductCard from '../components/cards/product';
         this.selectedUserId = userId;
         this.selectedUserisAdmin = isAdmin;
         this.selectedUserisProducer = isProducer;
+
+        if(swtich2) {
+          this.modifyUserRole(true, producerRequestId);
+        }
       },
       
-     async modifyUserRole() {
-
+     async modifyUserRole(switch2 = false, producerRequestId = null) {
+        this.btnActive = false;
+        
         var userId = this.selectedUserId;
         var isAdmin = this.selectedUserisAdmin;
         var isProducer =this.selectedUserisProducer;
 
+        console.log(isAdmin)
         if((!isAdmin && isProducer)){
           const response = await axios.get(`/users/${userId}/role/${0}`);
+          this.text = response.data.msg;
 
         } else if (!isAdmin && !isProducer) {
           const response = await axios.get(`/users/${userId}/role/${1}`);
+          this.text = response.data.msg;
+
+          if(switch2 && producerRequestId != null) {
+            const response = await axios.get(`/users/remove/producer-request/${producerRequestId}`);
+            this.text = response.data.msg;
+          } 
         }
 
+        this.snackbar = true;
+        
         this.initialize();
         this.dialog = false
+        this.btnActive = true;
+      },
+
+      async deleteRequest(producerRequestId){
+        this.btnActive = false;
+        const response = await axios.get(`/users/remove/producer-request/${producerRequestId}`);
+        this.text = "La requête a bien été supprimée. L'utilisateur pourra à nouveau envoyer une nouvelle requête";
+
+        this.initialize();
+        this.snackbar = true;
+        this.btnActive = true;
+      },
+
+      async refuseRequest(producerRequestId){
+        this.btnActive = false;
+        const response = await axios.get(`/users/refuse/producer-request/${producerRequestId}`);
+        this.text = response.data.msg;
+
+        this.initialize();
+        this.snackbar = true;
+        this.btnActive = true;
+      },
+
+      async activateRequest(producerRequestId){
+        this.btnActive = false;
+        const response = await axios.get(`/users/activate/producer-request/${producerRequestId}`);
+        this.text = response.data.msg;
+
+        this.initialize();
+        this.snackbar = true;
+        this.btnActive = true;
       },
 
 
-      editItem (item) {
+      editItem (item, switch2 = false) {
         this.switch1 = false
-        this.editedIndex = this.desserts.indexOf(item)
-        this.editedItem = Object.assign({}, item)
+        this.switch2 = false
 
-        this.editedItem.role.forEach(role => {
-          console.log(role == "ROLE_PRODUCER")
-          if(role === "ROLE_PRODUCER") {
-            this.switch1 = true
-          }
-        })
-        console.log("1 - " + this.switch1)
+        if(!switch2) {
+          this.editedIndex = this.desserts.indexOf(item)
+          this.editedItem = Object.assign({}, item)
+          
+          this.editedItem.role.forEach(role => {
+            if(role === "ROLE_PRODUCER") {
+              this.switch1 = true
+            }
+          })
+          this.dialog = true
+        } else {
+          item.roles.forEach(role => {
+            if(role === "ROLE_PRODUCER") {
+              this.switch2 = true
+            }
+          })
+        }
 
-        this.dialog = true
+        // this.updateRoles(this.editedItem.id, this.editedItem.role)
       },
 
       deleteItem (item) {
         this.editedIndex = this.desserts.indexOf(item)
         this.editedItem = Object.assign({}, item)
-        console.log(this.editedItem.state)
         this.dialogDelete = true
       },
 
@@ -364,9 +554,11 @@ import ProductCard from '../components/cards/product';
       },
 
       async desactivate($userId) {
+        this.btnActive = false;
         await axios.get(`/users/${$userId}/state-change`);
         this.initialize();
         this.closeDelete()
+        this.btnActive = true;
       },
 
       close () {
